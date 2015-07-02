@@ -1,0 +1,256 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Field Calculator</title>
+
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+	
+		<script src="http://code.jquery.com/jquery.min.js"></script>
+
+		<script src="codemirror/codemirror.js"></script>
+		<link rel="stylesheet" href="codemirror/codemirror.css">
+		<script src="codemirror/clike.js"></script>
+
+		<script src="vendor/three.js/Three.js"></script>
+		<script src="vendor/three.js/Detector.js"></script>
+		<script src="vendor/three.js/OrbitControls.js"></script>
+
+		<script src="vendor/threex/THREEx.screenshot.js"></script>
+		<script src="vendor/threex/THREEx.WindowResize.js"></script>
+		<script src="vendor/threex.dragpancontrols.js"></script>
+		<script src="vendor/threex/THREEx.Debug.js"></script>
+
+		<link  href="css/main.css" rel="stylesheet"/>
+	</head>
+<body>
+	<div class="top left header">
+		<h1 class="title"><a href="http://davidson16807.github.io/field-calculator/">&#8711;</a></h1>
+		<!-- <h2>Nabla</h2> -->
+		<h3 class="subtitle">A graphing calculator for mathematical fields in &#8476;<sup>3</sup></h3>
+		<div class="navigation">
+			<!-- <a href="#" id="about">ABOUT</a>&nbsp; -->
+			<!-- <a href="#" id="credits">CREDITS</a>&nbsp; -->
+			<!-- <a href="http://github.com/davidson16807/3billionyears">CODE</a>&nbsp; -->
+		</div>
+	</div>
+	<!-- three.js container -->
+    	<div id="container"></div>
+	<!-- info on screen display -->
+
+	<div id="about-section" class="hidden details">
+	</div>
+
+	<div id="credits-section" class="hidden details">
+	</div>
+	</div>
+
+	<div class="top right info" >
+		<h2 class="section-title">Options</h2>
+		<div>
+			<select>
+				<option>Scalar field</option>
+				<option>Vector field</option>
+			</select>
+		</div>
+	</div> 
+	<div class = "bottom right">
+		<div id="viewEditorContainer" style="opacity: 0.5">
+			<textarea id="viewEditor" rows="5" cols="80">
+float f(vec3 x){
+	return dot(x,x);
+}
+			</textarea>
+		</div>
+	</div>
+    <script type="x-shader/x-vertex" id="vectorVertexShader">
+		varying vec4 vPosition;
+
+		//USER_INPUT_GOES_HERE
+		
+		void main() {
+			vPosition = modelMatrix * vec4( position, 1.0 );
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+			gl_PointSize = 3.0; // vPosition.x*10.;
+		}
+    </script>
+    <script type="x-shader/x-fragment" id="vectorFragmentShader">
+        const float PI = 3.1415926;
+
+        varying vec2 vUv;
+        varying vec4 vPosition;
+
+        //converts float from 0-1 to a heat map visualtion
+        //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
+        vec4 heat (float v) {
+        	float value = 1.-v;
+        	return (0.5+0.5*smoothstep(0.0, 0.1, value))*vec4(
+        		smoothstep(0.5, 0.3, value),
+        		value < 0.3 ? smoothstep(0.0, 0.3, value) : smoothstep(1.0, 0.6, value),
+        		smoothstep(0.4, 0.6, value),
+        		1
+        	);
+        }
+
+        //USER_INPUT_GOES_HERE
+
+        void main() {
+            gl_FragColor = heat(f(vPosition.xyz));
+        }
+    </script>
+    <script type="x-shader/x-vertex" id="scalarVertexShader">
+		varying vec4 vPosition;
+
+		//USER_INPUT_GOES_HERE
+
+		void main() {
+			vPosition = modelMatrix * vec4( position, 1.0 );
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+			gl_PointSize = 3.0; // vPosition.x*10.;
+		}
+    </script>
+    <script type="x-shader/x-fragment" id="scalarFragmentShader">
+        const float PI = 3.1415926;
+
+        varying vec2 vUv;
+        varying vec4 vPosition;
+
+        //converts float from 0-1 to a heat map visualtion
+        //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
+        vec4 heat (float v) {
+        	float value = 1.-v;
+        	return (0.5+0.5*smoothstep(0.0, 0.1, value))*vec4(
+        		smoothstep(0.5, 0.3, value),
+        		value < 0.3 ? smoothstep(0.0, 0.3, value) : smoothstep(1.0, 0.6, value),
+        		smoothstep(0.4, 0.6, value),
+        		1
+        	);
+        }
+
+        //USER_INPUT_GOES_HERE
+
+        void main() {
+            gl_FragColor = heat(f(vPosition.xyz));
+        }
+    </script> 
+
+	<script type="text/javascript">
+
+		var viewEditor = CodeMirror.fromTextArea($('#viewEditor')[0], {
+			extraKeys: {
+				'Ctrl-S': function(){
+					console.log('hi ')
+					shader.vertexShader = $('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", viewEditor.getValue());
+					shader.fragmentShader = $('#scalarFragmentShader').text().replace("//USER_INPUT_GOES_HERE", viewEditor.getValue());
+					shader.needsUpdate = true;
+				}
+			}
+		});
+		viewEditor.setSize(400,150);
+
+		var scene, renderer, composer, clock;
+		var camera, cameraControl;
+	    var image = document.createElement( 'img' );
+
+	    var shader = new THREE.ShaderMaterial({
+	        vertexShader: $('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", viewEditor.getValue()),
+	        fragmentShader: $('#scalarFragmentShader').text().replace("//USER_INPUT_GOES_HERE", viewEditor.getValue()),
+	        uniforms: {
+	        }
+	    });
+
+		var geometry	= new THREE.Geometry();
+		var resolution = 10;
+		for (var i = 0; i <= resolution; i++) {
+			for (var j = 0; j <= resolution; j++) {
+				for (var k = 0; k <= resolution; k++) {
+					for(var l = 0; l<2; l++){ //l is used to represent vectors when mesh == THREE.Line
+						geometry.vertices.push(new THREE.Vector3((2*i/resolution-1),(2*j/resolution-1),(2*k/resolution-1)));
+					} 
+				}
+			}
+		};	
+		var mesh = new THREE.ParticleSystem(geometry, shader);
+		// var mesh	= new THREE.Line( geometry, shader, THREE.LinePieces);
+		var MegaYearsPerSecond = 20;
+		var Paused = true;
+		var Time = 0;
+
+		if( !init() ){
+			animate();
+		}
+		
+		// init the scene
+		function init(){
+			clock = new THREE.Clock();
+
+			if( Detector.webgl ){
+				renderer = new THREE.WebGLRenderer({
+					antialias		: true,	// to get smoother output
+					preserveDrawingBuffer	: true	// to allow screenshot
+				});
+				renderer.setClearColor( 0x000000 );
+			}else{
+				Detector.addGetWebGLMessage();
+				return true;
+			}
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.getElementById('container').appendChild(renderer.domElement);
+
+			// create a scene
+			scene = new THREE.Scene();
+
+			// put a camera in the scene
+			camera	= new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000 );
+			camera.position.set(0, 0, 5);
+			scene.add(camera);
+
+			// create a camera contol
+			cameraControls	= new THREE.OrbitControls( camera, $("#container").get(0) );
+
+			// transparently support window resize
+			THREEx.WindowResize.bind(renderer, camera);
+			// allow 'p' to make screenshot
+			THREEx.Screenshot.bindKey(renderer);
+
+			// here you add your objects
+			// - you will most likely replace this part by your own
+			var light	= new THREE.AmbientLight(  0xffffff );
+			scene.add( light );
+			scene.add( mesh );
+		}
+
+		// animation loop
+		function animate() {
+
+			// loop on request animation loop
+			// - it has to be at the begining of the function
+			// - see details at http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+			requestAnimationFrame( animate );
+
+			// variable which is increase by Math.PI every seconds - usefull for animation
+			var PIseconds	= Date.now() * Math.PI;
+
+			// update camera controls
+			cameraControls.update();
+
+			// actually render the scene
+			renderer.render( scene, camera );
+
+			if(Paused){
+				return;
+			}
+
+			var seconds = clock.getDelta();
+			if (seconds > 1){
+				seconds = 1;
+			}
+			
+			var timestep = seconds * MegaYearsPerSecond;
+			Time += timestep;
+			loadTime(Time);
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+@font-face
+{
+	font-family: Garogier;
+	src: url(../fonts/Garogier_unhinted.otf);
+}
+body {
+	overflow	: hidden;
+	padding		: 0;
+	margin		: 0;
+
+	color		: #222;
+	background-color: #BBB;
+	font-family	: arial;
+	font-size	: 100%;
+}
+
+h1,h2,h3 {
+	font-family: Garamond, Garogier, serif;
+	margin-bottom: 0.502%; 
+	margin-top: 0.502%;
+}
+.header h1 {
+	font-size: 8em;
+	font-weight: 100;
+	float: left;
+	position: relative;
+	top: -.4em;
+	opacity: 0.2;
+}
+.header h2{
+	color: white;
+	position: relative;
+	right: 1em;
+}
+.header h3{
+	color: #DDDDDD;
+	float: left;
+	width: 61%;
+	position: relative;
+	right: 3em;
+	/*top: 1em;*/
+}
+.section-title{
+	position: relative;
+	right: 1em;
+}
+
+.header {
+    font-weight:bold;
+}
+.header a {
+	color : white;
+	text-decoration	: none;
+}
+.header a:hover {
+	text-decoration	: none;
+}
+.navigation
+{
+	font-size: 76.3%;
+	margin-left: 23.6%;
+	width: 161%;
+}
+.navigation a:hover {
+	color: grey;
+	text-decoration	: none;
+}
+.article{
+	color: black;
+	background-color: white;
+}
+
+.top {
+	position: absolute;
+	top: 1em;
+}
+.bottom {
+	position: absolute;
+	bottom: 1em;
+}
+.left{
+	position: absolute;
+	left: 1em;
+}
+.right{
+	position: absolute;
+	right: 1em;
+}
+.details{
+	color: #DDDDDD;
+	position: absolute;
+	left: 1em;
+	top: 6em;
+	width:38.2%;
+	background: rgba(0,0,0,0.5);
+}
+.details a {
+	color: grey;
+}
+.details a:hover {
+	color: grey;
+	text-decoration	: none;
+}
+.hcenter {
+	display: block;
+	margin: auto;
+}
+.hidden {
+	display: none;
+}
+.info{
+	color: #DDDDDD;
+}
