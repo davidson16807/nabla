@@ -49,30 +49,44 @@
 	<div class="top right info" >
 		<h2 class="section-title">Options</h2>
 		<div>
-			<select>
-				<option>Scalar field</option>
-				<option>Vector field</option>
+			<select id="field-type">
+				<option value="scalar">Scalar field</option>
+				<option value="vector">Vector field</option>
 			</select>
 		</div>
 	</div> 
 	<div class = "bottom right">
-		<div id="viewEditorContainer" style="opacity: 0.5">
-			<textarea id="viewEditor" rows="5" cols="80">
+		<div id="scalarFieldEditorContainer" style="opacity: 0.5">
+			<textarea id="scalarFieldEditor" rows="5" cols="80">
 float f(vec3 x){
 	return dot(x,x);
+}
+			</textarea>
+		</div>
+
+		<div id="vectorFieldEditorContainer" style="opacity: 0.5">
+			<textarea id="vectorFieldEditor" rows="5" cols="80">
+vec3 f(vec3 x){
+	return x;
 }
 			</textarea>
 		</div>
 	</div>
     <script type="x-shader/x-vertex" id="vectorVertexShader">
 		varying vec4 vPosition;
+		uniform int resolution;
+		attribute float is_vector; // positive=true, negative=false
 
 		//USER_INPUT_GOES_HERE
 		
 		void main() {
-			vPosition = modelMatrix * vec4( position, 1.0 );
-			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-			gl_PointSize = 3.0; // vPosition.x*10.;
+			vPosition = modelMatrix * vec4(position, 1);
+			gl_Position = 
+				projectionMatrix * 
+				modelViewMatrix * 
+				vec4( is_vector > 0.? 
+					position + f(vPosition.xyz) / float(resolution) : 
+					position,      1.0 );
 		}
     </script>
     <script type="x-shader/x-fragment" id="vectorFragmentShader">
@@ -80,6 +94,7 @@ float f(vec3 x){
 
         varying vec2 vUv;
         varying vec4 vPosition;
+		uniform int resolution;
 
         //converts float from 0-1 to a heat map visualtion
         //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
@@ -96,11 +111,13 @@ float f(vec3 x){
         //USER_INPUT_GOES_HERE
 
         void main() {
-            gl_FragColor = heat(f(vPosition.xyz));
+        	vec3 f_ = f(vPosition.xyz);
+            gl_FragColor = heat(dot(f_,f_));
         }
     </script>
     <script type="x-shader/x-vertex" id="scalarVertexShader">
 		varying vec4 vPosition;
+		uniform int resolution;
 
 		//USER_INPUT_GOES_HERE
 
@@ -115,6 +132,7 @@ float f(vec3 x){
 
         varying vec2 vUv;
         varying vec4 vPosition;
+		uniform int resolution;
 
         //converts float from 0-1 to a heat map visualtion
         //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
@@ -136,43 +154,76 @@ float f(vec3 x){
     </script> 
 
 	<script type="text/javascript">
-
-		var viewEditor = CodeMirror.fromTextArea($('#viewEditor')[0], {
+		var vectorFieldEditor = CodeMirror.fromTextArea($('#vectorFieldEditor')[0], {
 			extraKeys: {
 				'Ctrl-S': function(){
-					console.log('hi ')
-					shader.vertexShader = $('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", viewEditor.getValue());
-					shader.fragmentShader = $('#scalarFragmentShader').text().replace("//USER_INPUT_GOES_HERE", viewEditor.getValue());
-					shader.needsUpdate = true;
+					console.log($('#vectorVertexShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue()));
+					vectorShader.vertexShader = $('#vectorVertexShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue());
+					vectorShader.fragmentShader = $('#vectorFragmentShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue());
+					vectorShader.needsUpdate = true;
 				}
 			}
 		});
-		viewEditor.setSize(400,150);
+		vectorFieldEditor.setSize(400,150);
+		var scalarFieldEditor = CodeMirror.fromTextArea($('#scalarFieldEditor')[0], {
+			extraKeys: {
+				'Ctrl-S': function(){
+					console.log($('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue()));
+					scalarShader.vertexShader = $('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue());
+					scalarShader.fragmentShader = $('#scalarFragmentShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue());
+					scalarShader.needsUpdate = true;
+				}
+			}
+		});
+		scalarFieldEditor.setSize(400,150);
 
 		var scene, renderer, composer, clock;
 		var camera, cameraControl;
 	    var image = document.createElement( 'img' );
 
-	    var shader = new THREE.ShaderMaterial({
-	        vertexShader: $('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", viewEditor.getValue()),
-	        fragmentShader: $('#scalarFragmentShader').text().replace("//USER_INPUT_GOES_HERE", viewEditor.getValue()),
+		var resolution = 5;
+
+		var scalarGeometry	= new THREE.Geometry();
+		var vectorGeometry	= new THREE.Geometry();
+	    var scalarShader = new THREE.ShaderMaterial({
+	        vertexShader: $('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue()),
+	        fragmentShader: $('#scalarFragmentShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue()),
+	        attributes: {
+	        },
 	        uniforms: {
+	        	resolution: { type: 'i', value: resolution }
+	        }
+	    });
+	    var vectorShader = new THREE.ShaderMaterial({
+	        vertexShader: $('#vectorVertexShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue()),
+	        fragmentShader: $('#vectorFragmentShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue()),
+	        attributes: {
+	        	is_vector: { type: 'f', value: [] }
+	        },
+	        uniforms: {
+	        	resolution: { type: 'i', value: resolution }
 	        }
 	    });
 
-		var geometry	= new THREE.Geometry();
 		var resolution = 10;
 		for (var i = 0; i <= resolution; i++) {
 			for (var j = 0; j <= resolution; j++) {
 				for (var k = 0; k <= resolution; k++) {
 					for(var l = 0; l<2; l++){ //l is used to represent vectors when mesh == THREE.Line
-						geometry.vertices.push(new THREE.Vector3((2*i/resolution-1),(2*j/resolution-1),(2*k/resolution-1)));
+						scalarGeometry.vertices.push(new THREE.Vector3((2*i/resolution-1),(2*j/resolution-1),(2*k/resolution-1)));
+						vectorGeometry.vertices.push(new THREE.Vector3((2*i/resolution-1),(2*j/resolution-1),(2*k/resolution-1)));
+						vectorShader.attributes.is_vector.value.push(2*l-1); 
+						//.value[i*resolution*resolution + j*resolution + k*2 +l] = 
 					} 
 				}
 			}
 		};	
-		var mesh = new THREE.ParticleSystem(geometry, shader);
-		// var mesh	= new THREE.Line( geometry, shader, THREE.LinePieces);
+		vectorShader.attributes.is_vector.needsUpdate = true;
+
+		var scalarField = new THREE.ParticleSystem(scalarGeometry, scalarShader);
+		var vectorField	= new THREE.Line( vectorGeometry, vectorShader, THREE.LinePieces);
+		// vectorField.visible = false;
+		var field = scalarField;
 		var MegaYearsPerSecond = 20;
 		var Paused = true;
 		var Time = 0;
@@ -218,7 +269,8 @@ float f(vec3 x){
 			// - you will most likely replace this part by your own
 			var light	= new THREE.AmbientLight(  0xffffff );
 			scene.add( light );
-			scene.add( mesh );
+			scene.add( scalarField );
+			// scene.add( vectorField );
 		}
 
 		// animation loop
@@ -251,6 +303,19 @@ float f(vec3 x){
 			Time += timestep;
 			loadTime(Time);
 		}
+
+		$('#field-type').change(function(event) {
+			scene.remove(field);
+
+			var field_type = $(this).val();
+			if (field_type == "scalar") {
+				field = scalarField;
+			} else {
+				field = vectorField;
+			}
+
+			scene.add(field);
+		});
 	</script>
 </body>
 </html>
