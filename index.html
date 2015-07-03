@@ -57,14 +57,14 @@
 	</div> 
 	<div class = "bottom right">
 		<div id="scalarFieldEditorContainer" style="opacity: 0.5">
-			<textarea id="scalarFieldEditor" rows="5" cols="80">
+			<textarea id="scalarFieldEditor" rows="5" cols="80", class="fieldEditorContainer">
 float f(vec3 x){
 	return dot(x,x);
 }
 			</textarea>
 		</div>
 
-		<div id="vectorFieldEditorContainer" style="opacity: 0.5">
+		<div id="vectorFieldEditorContainer" style="opacity: 0.5" class="hidden fieldEditorContainer">
 			<textarea id="vectorFieldEditor" rows="5" cols="80">
 vec3 f(vec3 x){
 	return x;
@@ -157,7 +157,6 @@ vec3 f(vec3 x){
 		var vectorFieldEditor = CodeMirror.fromTextArea($('#vectorFieldEditor')[0], {
 			extraKeys: {
 				'Ctrl-S': function(){
-					console.log($('#vectorVertexShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue()));
 					vectorShader.vertexShader = $('#vectorVertexShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue());
 					vectorShader.fragmentShader = $('#vectorFragmentShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue());
 					vectorShader.needsUpdate = true;
@@ -168,7 +167,6 @@ vec3 f(vec3 x){
 		var scalarFieldEditor = CodeMirror.fromTextArea($('#scalarFieldEditor')[0], {
 			extraKeys: {
 				'Ctrl-S': function(){
-					console.log($('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue()));
 					scalarShader.vertexShader = $('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue());
 					scalarShader.fragmentShader = $('#scalarFragmentShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue());
 					scalarShader.needsUpdate = true;
@@ -205,7 +203,7 @@ vec3 f(vec3 x){
 	        }
 	    });
 
-		var resolution = 10;
+		var resolution = 25;
 		for (var i = 0; i <= resolution; i++) {
 			for (var j = 0; j <= resolution; j++) {
 				for (var k = 0; k <= resolution; k++) {
@@ -306,12 +304,16 @@ vec3 f(vec3 x){
 
 		$('#field-type').change(function(event) {
 			scene.remove(field);
+			$('#scalarFieldEditorContainer').hide();
+			$('#vectorFieldEditorContainer').hide();
 
 			var field_type = $(this).val();
 			if (field_type == "scalar") {
 				field = scalarField;
+				$('#scalarFieldEditorContainer').show();
 			} else {
 				field = vectorField;
+				$('#vectorFieldEditorContainer').show();
 			}
 
 			scene.add(field);
