@@ -56,7 +56,7 @@
 		</div>
 	</div> 
 	<div class = "bottom right">
-		<div id="scalarFieldEditorContainer" style="opacity: 0.5">
+		<div id="scalarFieldEditorContainer" style="opacity: 0.7">
 			<textarea id="scalarFieldEditor" rows="5" cols="80", class="fieldEditorContainer">
 float f(vec3 x){
 	return dot(x,x);
@@ -64,7 +64,7 @@ float f(vec3 x){
 			</textarea>
 		</div>
 
-		<div id="vectorFieldEditorContainer" style="opacity: 0.5" class="fieldEditorContainer">
+		<div id="vectorFieldEditorContainer" style="opacity: 0.7" class="fieldEditorContainer">
 			<textarea id="vectorFieldEditor" rows="5" cols="80">
 vec3 f(vec3 x){
 	return x;
@@ -161,7 +161,9 @@ vec3 f(vec3 x){
 					vectorShader.fragmentShader = $('#vectorFragmentShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue());
 					vectorShader.needsUpdate = true;
 				}
-			}
+			},
+			mode: "text/x-csrc",
+			lineNumbers: true,
 		});
 		vectorFieldEditor.setSize(400,150);
 
@@ -172,7 +174,9 @@ vec3 f(vec3 x){
 					scalarShader.fragmentShader = $('#scalarFragmentShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue());
 					scalarShader.needsUpdate = true;
 				}
-			}
+			},
+			mode: "text/x-csrc",
+			lineNumbers: true,
 		});
 		scalarFieldEditor.setSize(400,150);
 
@@ -263,7 +267,7 @@ vec3 f(vec3 x){
 			// transparently support window resize
 			THREEx.WindowResize.bind(renderer, camera);
 			// allow 'p' to make screenshot
-			THREEx.Screenshot.bindKey(renderer);
+			// THREEx.Screenshot.bindKey(renderer);
 
 			// here you add your objects
 			// - you will most likely replace this part by your own
