@@ -22,6 +22,7 @@
 		<script src="vendor/threex.dragpancontrols.js"></script>
 		<script src="vendor/threex/THREEx.Debug.js"></script>
 
+		<link href="codemirror/monokai.css" rel="stylesheet"></link>
 		<link  href="css/main.css" rel="stylesheet"/>
 	</head>
 <body>
@@ -57,7 +58,7 @@
 	</div> 
 	<div class = "bottom right">
 		<div id="scalarFieldEditorContainer" style="opacity: 0.7">
-			<textarea id="scalarFieldEditor" rows="5" cols="80", class="fieldEditorContainer">
+			<textarea id="scalarFieldEditor" rows="5" cols="80" height="auto", class="fieldEditorContainer">
 float f(vec3 x){
 	return dot(x,x);
 }
@@ -65,7 +66,7 @@ float f(vec3 x){
 		</div>
 
 		<div id="vectorFieldEditorContainer" style="opacity: 0.7" class="fieldEditorContainer">
-			<textarea id="vectorFieldEditor" rows="5" cols="80">
+			<textarea id="vectorFieldEditor" rows="5" cols="80" height="auto">
 vec3 f(vec3 x){
 	return x;
 }
@@ -75,12 +76,16 @@ vec3 f(vec3 x){
     <script type="x-shader/x-vertex" id="vectorVertexShader">
 		varying vec4 vPosition;
 		uniform int resolution;
+		uniform vec4 center;
+		uniform vec3 domain;
+		uniform float range;
+
 		attribute float is_vector; // positive=true, negative=false
 
 		//USER_INPUT_GOES_HERE
 		
 		void main() {
-			vPosition = modelMatrix * vec4(position, 1);
+			vPosition = vec4(position * domain + center.xyz, 1);
 			gl_Position = 
 				projectionMatrix * 
 				modelViewMatrix * 
@@ -92,9 +97,9 @@ vec3 f(vec3 x){
     <script type="x-shader/x-fragment" id="vectorFragmentShader">
         const float PI = 3.1415926;
 
-        varying vec2 vUv;
         varying vec4 vPosition;
 		uniform int resolution;
+		uniform float range;
 
         //converts float from 0-1 to a heat map visualtion
         //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
@@ -118,21 +123,24 @@ vec3 f(vec3 x){
     <script type="x-shader/x-vertex" id="scalarVertexShader">
 		varying vec4 vPosition;
 		uniform int resolution;
+		uniform vec4 center;
+		uniform vec3 domain;
+		uniform float range;
 
 		//USER_INPUT_GOES_HERE
 
 		void main() {
-			vPosition = modelMatrix * vec4( position, 1.0 );
+			vPosition = vec4( position * domain + center.xyz, 1.0 );
 			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-			gl_PointSize = 3.0; // vPosition.x*10.;
+			gl_PointSize = 3.0; 
 		}
     </script>
     <script type="x-shader/x-fragment" id="scalarFragmentShader">
         const float PI = 3.1415926;
 
-        varying vec2 vUv;
         varying vec4 vPosition;
 		uniform int resolution;
+		uniform float range;
 
         //converts float from 0-1 to a heat map visualtion
         //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
@@ -162,10 +170,11 @@ vec3 f(vec3 x){
 					vectorShader.needsUpdate = true;
 				}
 			},
-			mode: "text/x-csrc",
+			mode: "x-shader/x-vertex",
 			lineNumbers: true,
 		});
 		vectorFieldEditor.setSize(400,150);
+		vectorFieldEditor.setOption("theme", "monokai");
 
 		var scalarFieldEditor = CodeMirror.fromTextArea($('#scalarFieldEditor')[0], {
 			extraKeys: {
@@ -175,10 +184,11 @@ vec3 f(vec3 x){
 					scalarShader.needsUpdate = true;
 				}
 			},
-			mode: "text/x-csrc",
+			mode: "x-shader/x-vertex",
 			lineNumbers: true,
 		});
 		scalarFieldEditor.setSize(400,150);
+		scalarFieldEditor.setOption("theme", 'monokai');
 
 		$('#vectorFieldEditorContainer').hide();
 		var scene, renderer, composer, clock;
@@ -195,7 +205,10 @@ vec3 f(vec3 x){
 	        attributes: {
 	        },
 	        uniforms: {
-	        	resolution: { type: 'i', value: resolution }
+	        	resolution: { type: 'i', value: resolution },
+	        	center: { type: 'v4', value: new THREE.Vector4( 0,0,0,0 ) },
+	        	domain: { type: 'v3', value: new THREE.Vector3( 1,1,1 ) },
+	        	range: { type: 'f', value: 1 }
 	        }
 	    });
 	    var vectorShader = new THREE.ShaderMaterial({
@@ -205,7 +218,10 @@ vec3 f(vec3 x){
 	        	is_vector: { type: 'f', value: [] }
 	        },
 	        uniforms: {
-	        	resolution: { type: 'i', value: resolution }
+	        	resolution: { type: 'i', value: resolution },
+	        	center: { type: 'v4', value: new THREE.Vector3( 0,0,0,0 ) },
+	        	domain: { type: 'v3', value: new THREE.Vector3( 1,1,1 ) },
+	        	range: { type: 'f', value: 1 }
 	        }
 	    });
 
