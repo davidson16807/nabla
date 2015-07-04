@@ -64,7 +64,7 @@ float f(vec3 x){
 			</textarea>
 		</div>
 
-		<div id="vectorFieldEditorContainer" style="opacity: 0.5" class="hidden fieldEditorContainer">
+		<div id="vectorFieldEditorContainer" style="opacity: 0.5" class="fieldEditorContainer">
 			<textarea id="vectorFieldEditor" rows="5" cols="80">
 vec3 f(vec3 x){
 	return x;
@@ -164,6 +164,7 @@ vec3 f(vec3 x){
 			}
 		});
 		vectorFieldEditor.setSize(400,150);
+
 		var scalarFieldEditor = CodeMirror.fromTextArea($('#scalarFieldEditor')[0], {
 			extraKeys: {
 				'Ctrl-S': function(){
@@ -175,6 +176,7 @@ vec3 f(vec3 x){
 		});
 		scalarFieldEditor.setSize(400,150);
 
+		$('#vectorFieldEditorContainer').hide();
 		var scene, renderer, composer, clock;
 		var camera, cameraControl;
 	    var image = document.createElement( 'img' );
