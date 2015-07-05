@@ -111,3 +111,6 @@ h1,h2,h3 {
 .info{
 	color: #DDDDDD;
 }
+.info sub {
+	font-size: 9px;
+}

@@ -59,14 +59,17 @@
 					</select>
 				</td>
 			</tr>
-			<!-- <tr>
+			<tr>
 				<td>Domain center:</td>
 				<td>
-					<input id="domain-x" type="number" value="0" style="width: 2.5em" />
-					<input id="domain-y" type="number" value="0" style="width: 2.5em" />
-					<input id="domain-z" type="number" value="0" style="width: 2.5em" />
+					<input id="domain-x" type="number" value="0" step="0.1" style="width: 2.5em" />
+					<sub>x</sub>
+					<input id="domain-y" type="number" value="0" step="0.1" style="width: 2.5em" />
+					<sub>y</sub>
+					<input id="domain-z" type="number" value="0" step="0.1" style="width: 2.5em" />
+					<sub>z</sub>
 				</td>
-			</tr> -->
+			</tr>
 			<tr>
 				<td>Domain width:</td>
 				<td>
@@ -77,7 +80,9 @@
 				<td>Range:</td>
 				<td>
 					<input id="range-min" type="number" value="0" max="1" style="width: 2.5em" />
+					<sub>min</sub>
 					<input id="range-max" type="number" value="1" min="0" style="width: 2.5em" />
+					<sub>max</sub>
 				</td>
 			</tr>
 		</table>
@@ -237,6 +242,7 @@ vec3 f(vec3 x){
 	        	resolution: { type: 'i', value: resolution },
 	        	center: { type: 'v4', value: new THREE.Vector4( 0,0,0,0 ) },
 	        	domain_width: { type: 'f', value: 2 },
+	        	domain_center: { type: 'v4', value: new THREE.Vector4(0,0,0,0) },
 	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
 	        }
 	    });
@@ -250,6 +256,7 @@ vec3 f(vec3 x){
 	        	resolution: { type: 'i', value: resolution },
 	        	center: { type: 'v4', value: new THREE.Vector4( 0,0,0,0 ) },
 	        	domain_width: { type: 'f', value: 2 },
+	        	domain_center: { type: 'v4', value: new THREE.Vector4(0,0,0,0) },
 	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
 	        }
 	    });
@@ -368,6 +375,24 @@ vec3 f(vec3 x){
 			}
 
 			scene.add(field);
+		});
+		$('#domain-x').change(function(event) {
+			vectorShader.uniforms.domain_center.value.x = $('#domain-x').val();
+			vectorShader.uniforms.domain_center.needsUpdate = true;
+			scalarShader.uniforms.domain_center.value.x = $('#domain-x').val();
+			scalarShader.uniforms.domain_center.needsUpdate = true;
+		});
+		$('#domain-y').change(function(event) {
+			vectorShader.uniforms.domain_center.value.y = $('#domain-y').val();
+			vectorShader.uniforms.domain_center.needsUpdate = true;
+			scalarShader.uniforms.domain_center.value.y = $('#domain-y').val();
+			scalarShader.uniforms.domain_center.needsUpdate = true;
+		});
+		$('#domain-z').change(function(event) {
+			vectorShader.uniforms.domain_center.value.z = $('#domain-z').val();
+			vectorShader.uniforms.domain_center.needsUpdate = true;
+			scalarShader.uniforms.domain_center.value.z = $('#domain-z').val();
+			scalarShader.uniforms.domain_center.needsUpdate = true;
 		});
 		$('#domain-width').change(function(e) {
 			vectorShader.uniforms.domain_width.value = $('#domain-width').val();
