@@ -28,15 +28,19 @@
 <body>
 	<!-- three.js container -->
 	<div id="container"></div>
-	<div class="top left header">
-		<h1 class="title"><a href="http://davidson16807.github.io/field-calculator/">&#8711;</a></h1>
+	<div class="header">
+		<h1 class="title">
+			<a href="http://davidson16807.github.io/field-calculator/">
+				<img src="icons/Nabla-symbol.svg" width="23.6%" alt="&#8711;"></img>
+			</a>
+		</h1>
 		<!-- <h2>Nabla</h2> -->
 		<h3 class="subtitle">A graphing calculator for mathematical fields in &#8476;<sup>3</sup></h3>
-		<div class="navigation">
+		<!-- <div class="navigation"> -->
 			<!-- <a href="#" id="about">ABOUT</a>&nbsp; -->
 			<!-- <a href="#" id="credits">CREDITS</a>&nbsp; -->
 			<!-- <a href="http://github.com/davidson16807/3billionyears">CODE</a>&nbsp; -->
-		</div>
+		<!-- </div> -->
 	</div>
 	<!-- info on screen display -->
 
@@ -88,23 +92,30 @@
 		</table>
 	</div> 
 	<div class = "bottom right info">
-		<!-- <h2 class="section-type">Code</h2> -->
-		<div id="scalarFieldEditorContainer" style="opacity: 0.7">
-			<textarea id="scalarFieldEditor" rows="5" cols="80" height="auto", class="fieldEditorContainer">
+		<div>
+			<h2 class="section-type" style="display: inline-block; float: clear">Code</h2>
+			<button class="compile" style="float:right;">
+				<img src="icons/download-512px.svg" height="12em">
+				Compile
+				<span class="instructions">ctrl+s</span>
+			</button>
+		</div>
+		<div id="scalarFieldEditorContainer" style="opacity: 0.9">
+			<textarea id="scalarFieldEditor" cols="80" height="auto", class="fieldEditorContainer">
 // Write your own code, here. 
 // Code must be written in glsl.
-// Hit ctrl+s to update the view.
+// Hit "compile" to update the view.
 float f(vec3 x){
 	return cos(x.x) * cos(x.y) * cos(x.z);
 }
 			</textarea>
 		</div>
 
-		<div id="vectorFieldEditorContainer" style="opacity: 0.7" class="fieldEditorContainer">
-			<textarea id="vectorFieldEditor" rows="5" cols="80" height="auto">
+		<div id="vectorFieldEditorContainer" style="opacity: 0.9" class="fieldEditorContainer">
+			<textarea id="vectorFieldEditor" cols="80" height="auto">
 // Write your own code, here. 
 // Code must be written in glsl.
-// Hit ctrl+s to update the view.
+// Hit "compile" to update the view.
 const float dx = 0.001;
 const vec3 i = vec3(1,0,0);
 const vec3 j = vec3(0,1,0);
@@ -214,32 +225,35 @@ vec3 f(vec3 x){
     </script> 
 
 	<script type="text/javascript">
+		THREE.ShaderMaterial.prototype.compile = function(user_input) {
+			this.vertexShader = this.vertex_template.replace("//USER_INPUT_GOES_HERE", user_input);
+			this.fragmentShader = this.fragment_template.replace("//USER_INPUT_GOES_HERE", user_input);
+			this.needsUpdate = true;
+		}
 		var vectorFieldEditor = CodeMirror.fromTextArea($('#vectorFieldEditor')[0], {
 			extraKeys: {
 				'Ctrl-S': function(){
-					vectorShader.vertexShader = $('#vectorVertexShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue());
-					vectorShader.fragmentShader = $('#vectorFragmentShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue());
-					vectorShader.needsUpdate = true;
+					vectorShader.compile(vectorFieldEditor.getValue());
 				}
 			},
 			mode: "x-shader/x-vertex",
 			lineNumbers: true,
 		});
-		vectorFieldEditor.setSize(400,150);
+		// vectorFieldEditor.setSize(400,150);
+		// vectorFieldEditor.viewportMargin = Infinity;
 		vectorFieldEditor.setOption("theme", "monokai");
 
 		var scalarFieldEditor = CodeMirror.fromTextArea($('#scalarFieldEditor')[0], {
 			extraKeys: {
 				'Ctrl-S': function(){
-					scalarShader.vertexShader = $('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue());
-					scalarShader.fragmentShader = $('#scalarFragmentShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue());
-					scalarShader.needsUpdate = true;
+					scalarShader.compile(scalarFieldEditor.getValue());
 				}
 			},
 			mode: "x-shader/x-vertex",
 			lineNumbers: true,
 		});
-		scalarFieldEditor.setSize(400,150);
+		// scalarFieldEditor.setSize(400,150);
+		// scalarFieldEditor.viewportMargin = Infinity;
 		scalarFieldEditor.setOption("theme", 'monokai');
 
 		$('#vectorFieldEditorContainer').hide();
@@ -264,6 +278,8 @@ vec3 f(vec3 x){
 	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
 	        }
 	    });
+	    scalarShader.vertex_template = $('#scalarVertexShader').text();
+	    scalarShader.fragment_template = $('#scalarFragmentShader').text();
 	    var vectorShader = new THREE.ShaderMaterial({
 	        vertexShader: $('#vectorVertexShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue()),
 	        fragmentShader: $('#vectorFragmentShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue()),
@@ -278,6 +294,8 @@ vec3 f(vec3 x){
 	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
 	        }
 	    });
+	    vectorShader.vertex_template = $('#vectorVertexShader').text();
+	    vectorShader.fragment_template = $('#vectorFragmentShader').text();
 
 		var resolution = 25;
 		for (var i = 0; i <= resolution; i++) {
@@ -431,6 +449,14 @@ vec3 f(vec3 x){
 			vectorShader.uniforms.range.needsUpdate = true;
 			scalarShader.uniforms.range.value.x = $('#range-min').val();
 			scalarShader.uniforms.range.needsUpdate = true;
+		});
+		$('.compile').click(function(event) {
+			var field_type = $('#field-type').val();
+			if (field_type == "vector") {
+				vectorShader.compile(vectorFieldEditor.getValue());
+			} else if (field_type) {
+				scalarShader.compile(scalarFieldEditor.getValue());
+			};
 		});
 	</script>
 </body>

@@ -19,32 +19,6 @@ h1,h2,h3 {
 	margin-bottom: 0.502%; 
 	margin-top: 0.502%;
 }
-.header h1 {
-	font-size: 8em;
-	font-weight: 100;
-	float: left;
-	position: relative;
-	top: -.4em;
-	opacity: 0.2;
-}
-.header h2{
-	color: white;
-	position: relative;
-	right: 1em;
-}
-.header h3{
-	color: #DDDDDD;
-	float: left;
-	width: 61%;
-	position: relative;
-	right: 3em;
-	/*top: 1em;*/
-}
-.section-title{
-	position: relative;
-	right: 1em;
-}
-
 .header {
     font-weight:bold;
 }
@@ -55,6 +29,28 @@ h1,h2,h3 {
 .header a:hover {
 	text-decoration	: none;
 }
+.header h1 {
+	position: absolute;
+	top: 0.5em;
+	left: 0.5em;
+	opacity: 0.2;
+}
+.header h2{
+	color: white;
+	position: absolute;
+}
+.header h3{
+	color: #DDDDDD;
+	width: 23.6%;
+	position: absolute;
+	left: 2.5em;
+	top: 2em;
+}
+.section-title{
+	position: relative;
+	right: 1em;
+}
+
 .navigation
 {
 	font-size: 76.3%;
@@ -112,5 +108,12 @@ h1,h2,h3 {
 	color: #DDDDDD;
 }
 .info sub {
-	font-size: 9px;
+	font-size: 61%;
+}
+.instructions {
+	color: grey;
+	font-style: italic;
+	font-size: 61%;
+	float:right;
+	padding-left:1em;
 }
