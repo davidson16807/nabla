@@ -106,7 +106,7 @@
 // Code must be written in glsl.
 // Hit "compile" to update the view.
 float f(vec3 x){
-	return cos(x.x) * cos(x.y) * cos(x.z);
+  return cos(x.x) * cos(x.y) * cos(x.z);
 }
 			</textarea>
 		</div>
@@ -116,18 +116,12 @@ float f(vec3 x){
 // Write your own code, here. 
 // Code must be written in glsl.
 // Hit "compile" to update the view.
-const float dx = 0.001;
-const vec3 i = vec3(1,0,0);
-const vec3 j = vec3(0,1,0);
-const vec3 k = vec3(0,0,1);
-float g(vec3 x){
-  return cos(x.x) * cos(x.y) * cos(x.z);
-}
 vec3 f(vec3 x){
   return vec3(
-	g(x+dx*i)-g(x),
-	g(x+dx*j)-g(x),
-	g(x+dx*k)-g(x)) / dx;
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
 }
 			</textarea>
 		</div>
@@ -223,6 +217,149 @@ vec3 f(vec3 x){
             gl_FragColor = vec4(heat(display_value), 1./display_value);
         }
     </script> 
+	
+	<!-- EXAMPLE INPUT -->
+    <script type="x-shader/x-fragment" id="scalar-field-demo">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+float f(vec3 x){
+  return cos(x.x) * cos(x.y) * cos(x.z);
+}
+    </script>
+<script type="x-shader/x-fragment" id="vector-field-demo">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+vec3 f(vec3 x){
+  return vec3(
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
+}
+</script>
+    <script type="x-shader/x-fragment" id="gradient-demo">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+float g(vec3 x){
+  return cos(x.x) * cos(x.y) * cos(x.z);
+}
+vec3 f(vec3 x){
+  return vec3(
+    g(x+dx*i)-g(x),
+    g(x+dx*j)-g(x),
+    g(x+dx*k)-g(x)) / dx;
+}
+    </script>
+    <script type="x-shader/x-fragment" id="divergence-demo">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+vec3 g(vec3 x){
+  return vec3(
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
+}
+float f(vec3 x){
+  return 
+      ((g(x+dx*i)-g(x)).x + 
+       (g(x+dx*j)-g(x)).y + 
+       (g(x+dx*k)-g(x)).z) / dx;
+}
+    </script>
+    <script type="x-shader/x-fragment" id="curl-demo">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+vec3 g(vec3 x){
+  return vec3(
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
+}
+vec3 f(vec3 x){
+  vec3 dgdx = (g(x+dx*i)-g(x)) / dx;
+  vec3 dgdy = (g(x+dx*j)-g(x)) / dx;
+  vec3 dgdz = (g(x+dx*k)-g(x)) / dx;
+  return 
+    vec3(
+        dgdy.z - dgdz.y,
+        dgdz.x - dgdx.z,
+        dgdx.y - dgdy.x
+      );
+}
+    </script>
+    <script type="x-shader/x-fragment" id="scalar-laplacian-demo">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+float g(vec3 x){
+  return cos(x.x) * cos(x.y) * cos(x.z);
+}
+vec3 grad_g(vec3 x){
+  return 
+    vec3(
+      g(x+dx*i)-g(x),
+      g(x+dx*j)-g(x),
+      g(x+dx*k)-g(x)) / dx;
+}
+float f(vec3 x){
+    return
+      ((grad_g(x+dx*i)-grad_g(x)).x + 
+       (grad_g(x+dx*j)-grad_g(x)).y + 
+       (grad_g(x+dx*k)-grad_g(x)).z) / dx;
+}
+    </script>
+    <script type="x-shader/x-fragment" id="vector-laplacian-demo">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+vec3 g(vec3 x){
+  return vec3(
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
+}
+float div_g(vec3 x){
+  return  
+    ((g(x+dx*i)-g(x)).x + 
+     (g(x+dx*j)-g(x)).y + 
+     (g(x+dx*k)-g(x)).z) / dx;
+}
+vec3 f(vec3 x){
+  return 
+    vec3(
+      div_g(x+dx*i)-div_g(x),
+      div_g(x+dx*j)-div_g(x),
+      div_g(x+dx*k)-div_g(x)) / dx;
+}
+    </script>
 
 	<script type="text/javascript">
 		THREE.ShaderMaterial.prototype.compile = function(user_input) {
