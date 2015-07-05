@@ -73,7 +73,7 @@
 			<tr>
 				<td>Domain width:</td>
 				<td>
-					<input id="domain-width" type="number" value="2" style="width: 2.5em" />
+					<input id="domain-width" type="number" value="8" style="width: 2.5em" />
 				</td>
 			</tr>
 			<tr>
@@ -87,17 +87,24 @@
 			</tr>
 		</table>
 	</div> 
-	<div class = "bottom right">
+	<div class = "bottom right info">
+		<!-- <h2 class="section-type">Code</h2> -->
 		<div id="scalarFieldEditorContainer" style="opacity: 0.7">
 			<textarea id="scalarFieldEditor" rows="5" cols="80" height="auto", class="fieldEditorContainer">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit ctrl+s to update the view.
 float f(vec3 x){
-	return dot(x,x);
+	return cos(x.x) * cos(x.y) * cos(x.z);
 }
 			</textarea>
 		</div>
 
 		<div id="vectorFieldEditorContainer" style="opacity: 0.7" class="fieldEditorContainer">
 			<textarea id="vectorFieldEditor" rows="5" cols="80" height="auto">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit ctrl+s to update the view.
 vec3 f(vec3 x){
 	return x;
 }
@@ -165,7 +172,7 @@ vec3 f(vec3 x){
 			vPosition = position * domain_width/2. + domain_center.xyz;
 			float scalar = f(vPosition);
 			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-			gl_PointSize = 3.0; 
+			gl_PointSize = 10.*clamp(scalar, range.x, range.y)/(range.y-range.x); 
 		}
     </script>
     <script type="x-shader/x-fragment" id="scalarFragmentShader">
@@ -241,7 +248,7 @@ vec3 f(vec3 x){
 	        uniforms: {
 	        	resolution: { type: 'i', value: resolution },
 	        	center: { type: 'v4', value: new THREE.Vector4( 0,0,0,0 ) },
-	        	domain_width: { type: 'f', value: 2 },
+	        	domain_width: { type: 'f', value: 8 },
 	        	domain_center: { type: 'v4', value: new THREE.Vector4(0,0,0,0) },
 	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
 	        }
@@ -255,7 +262,7 @@ vec3 f(vec3 x){
 	        uniforms: {
 	        	resolution: { type: 'i', value: resolution },
 	        	center: { type: 'v4', value: new THREE.Vector4( 0,0,0,0 ) },
-	        	domain_width: { type: 'f', value: 2 },
+	        	domain_width: { type: 'f', value: 8 },
 	        	domain_center: { type: 'v4', value: new THREE.Vector4(0,0,0,0) },
 	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
 	        }
