@@ -26,6 +26,8 @@
 		<link  href="css/main.css" rel="stylesheet"/>
 	</head>
 <body>
+	<!-- three.js container -->
+	<div id="container"></div>
 	<div class="top left header">
 		<h1 class="title"><a href="http://davidson16807.github.io/field-calculator/">&#8711;</a></h1>
 		<!-- <h2>Nabla</h2> -->
@@ -36,8 +38,6 @@
 			<!-- <a href="http://github.com/davidson16807/3billionyears">CODE</a>&nbsp; -->
 		</div>
 	</div>
-	<!-- three.js container -->
-    	<div id="container"></div>
 	<!-- info on screen display -->
 
 	<div id="about-section" class="hidden details">
@@ -47,14 +47,40 @@
 	</div>
 	</div>
 
-	<div class="top right info" >
+	<div class="top right info" style="display: block">
 		<h2 class="section-title">Options</h2>
-		<div>
-			<select id="field-type">
-				<option value="scalar">Scalar field</option>
-				<option value="vector">Vector field</option>
-			</select>
-		</div>
+		<table>
+			<tr>
+				<td>Field Type:</td>
+				<td>
+					<select id="field-type">
+						<option value="scalar">Scalar</option>
+						<option value="vector">Vector</option>
+					</select>
+				</td>
+			</tr>
+			<!-- <tr>
+				<td>Domain center:</td>
+				<td>
+					<input id="domain-x" type="number" value="0" style="width: 2.5em" />
+					<input id="domain-y" type="number" value="0" style="width: 2.5em" />
+					<input id="domain-z" type="number" value="0" style="width: 2.5em" />
+				</td>
+			</tr> -->
+			<tr>
+				<td>Domain width:</td>
+				<td>
+					<input id="domain-width" type="number" value="2" style="width: 2.5em" />
+				</td>
+			</tr>
+			<tr>
+				<td>Range:</td>
+				<td>
+					<input id="range-min" type="number" value="0" max="1" style="width: 2.5em" />
+					<input id="range-max" type="number" value="1" min="0" style="width: 2.5em" />
+				</td>
+			</tr>
+		</table>
 	</div> 
 	<div class = "bottom right">
 		<div id="scalarFieldEditorContainer" style="opacity: 0.7">
@@ -74,32 +100,32 @@ vec3 f(vec3 x){
 		</div>
 	</div>
     <script type="x-shader/x-vertex" id="vectorVertexShader">
-		varying vec4 vPosition;
+		varying vec3 vPosition;
 		uniform int resolution;
-		uniform vec4 center;
-		uniform vec3 domain;
-		uniform float range;
-
+		uniform vec4 domain_center;
+		uniform float domain_width;
+		uniform vec2 range;
 		attribute float is_vector; // positive=true, negative=false
 
 		//USER_INPUT_GOES_HERE
 		
 		void main() {
-			vPosition = vec4(position * domain + center.xyz, 1);
+			vPosition = position * domain_width/2. + domain_center.xyz;
+			vec3 vector = f(vPosition);
 			gl_Position = 
 				projectionMatrix * 
 				modelViewMatrix * 
 				vec4( is_vector > 0.? 
-					position + f(vPosition.xyz) / float(resolution) : 
+					position + vector / float(resolution) : 
 					position,      1.0 );
 		}
     </script>
     <script type="x-shader/x-fragment" id="vectorFragmentShader">
         const float PI = 3.1415926;
 
-        varying vec4 vPosition;
+        varying vec3 vPosition;
 		uniform int resolution;
-		uniform float range;
+		uniform vec2 range;
 
         //converts float from 0-1 to a heat map visualtion
         //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
@@ -116,21 +142,23 @@ vec3 f(vec3 x){
         //USER_INPUT_GOES_HERE
 
         void main() {
-        	vec3 f_ = f(vPosition.xyz);
-            gl_FragColor = heat(dot(f_,f_));
+        	vec3 vector = f(vPosition);
+        	float magnitude = sqrt(dot(vector,vector));
+            gl_FragColor = heat(clamp(magnitude, range.x, range.y)/(range.y-range.x));
         }
     </script>
     <script type="x-shader/x-vertex" id="scalarVertexShader">
-		varying vec4 vPosition;
+		varying vec3 vPosition;
 		uniform int resolution;
-		uniform vec4 center;
-		uniform vec3 domain;
-		uniform float range;
+		uniform vec4 domain_center;
+		uniform float domain_width;
+		uniform vec2 range;
 
 		//USER_INPUT_GOES_HERE
 
 		void main() {
-			vPosition = vec4( position * domain + center.xyz, 1.0 );
+			vPosition = position * domain_width/2. + domain_center.xyz;
+			float scalar = f(vPosition);
 			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 			gl_PointSize = 3.0; 
 		}
@@ -138,9 +166,9 @@ vec3 f(vec3 x){
     <script type="x-shader/x-fragment" id="scalarFragmentShader">
         const float PI = 3.1415926;
 
-        varying vec4 vPosition;
+        varying vec3 vPosition;
 		uniform int resolution;
-		uniform float range;
+		uniform vec2 range;
 
         //converts float from 0-1 to a heat map visualtion
         //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
@@ -157,7 +185,8 @@ vec3 f(vec3 x){
         //USER_INPUT_GOES_HERE
 
         void main() {
-            gl_FragColor = heat(f(vPosition.xyz));
+        	float scalar = f(vPosition);
+            gl_FragColor = heat(clamp(scalar, range.x, range.y)/(range.y-range.x));
         }
     </script> 
 
@@ -207,8 +236,8 @@ vec3 f(vec3 x){
 	        uniforms: {
 	        	resolution: { type: 'i', value: resolution },
 	        	center: { type: 'v4', value: new THREE.Vector4( 0,0,0,0 ) },
-	        	domain: { type: 'v3', value: new THREE.Vector3( 1,1,1 ) },
-	        	range: { type: 'f', value: 1 }
+	        	domain_width: { type: 'f', value: 2 },
+	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
 	        }
 	    });
 	    var vectorShader = new THREE.ShaderMaterial({
@@ -219,9 +248,9 @@ vec3 f(vec3 x){
 	        },
 	        uniforms: {
 	        	resolution: { type: 'i', value: resolution },
-	        	center: { type: 'v4', value: new THREE.Vector3( 0,0,0,0 ) },
-	        	domain: { type: 'v3', value: new THREE.Vector3( 1,1,1 ) },
-	        	range: { type: 'f', value: 1 }
+	        	center: { type: 'v4', value: new THREE.Vector4( 0,0,0,0 ) },
+	        	domain_width: { type: 'f', value: 2 },
+	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
 	        }
 	    });
 
@@ -339,6 +368,26 @@ vec3 f(vec3 x){
 			}
 
 			scene.add(field);
+		});
+		$('#domain-width').change(function(e) {
+			vectorShader.uniforms.domain_width.value = $('#domain-width').val();
+			vectorShader.uniforms.domain_width.needsUpdate = true;
+			scalarShader.uniforms.domain_width.value = $('#domain-width').val();
+			scalarShader.uniforms.domain_width.needsUpdate = true;
+		});
+		$('#range-max').change(function(event) {
+			$('#range-min').attr('max', $('#range-max').val());
+			vectorShader.uniforms.range.value.y = $('#range-max').val();
+			vectorShader.uniforms.range.needsUpdate = true;
+			scalarShader.uniforms.range.value.y = $('#range-max').val();
+			scalarShader.uniforms.range.needsUpdate = true;
+		});
+		$('#range-min').change(function(event) {
+			$('#range-max').attr('min', $('#range-min').val());
+			vectorShader.uniforms.range.value.x = $('#range-min').val();
+			vectorShader.uniforms.range.needsUpdate = true;
+			scalarShader.uniforms.range.value.x = $('#range-min').val();
+			scalarShader.uniforms.range.needsUpdate = true;
 		});
 	</script>
 </body>
