@@ -219,7 +219,52 @@ vec3 f(vec3 x){
     </script> 
 	
 	<!-- EXAMPLE INPUT -->
-    <script type="x-shader/x-fragment" id="scalar-field-demo">
+    <script type="x-shader/x-scalar" id="geometry-demo">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+// Heaviside step function
+// this converts the range to [0,1] 
+// so we can do CSG with basic arithmetic
+float H(float x){ 
+  return x > 0.? 1. : 0.;
+}
+// Heaviside step function approximation,
+// this lets us create smooth gradients
+float H(float x, float k){ 
+  return 1. / (1. + exp(-2.*k*x));
+}
+float unite(float a, float b){
+  return (a+b);
+}
+float intersect(float a, float b){
+  return (a*b);
+}
+float circle(vec3 x, float r){
+  return H(r*r - dot(x,x));
+}
+float square(vec3 x, vec3 size){
+  return 
+    H((size.x / 2.) - sqrt(x.x*x.x)) * 
+    H((size.y / 2.) - sqrt(x.y*x.y)) * 
+    H((size.z / 2.) - sqrt(x.z*x.z));
+}
+float cylinder(vec3 x, float r, float h){
+  return
+    H((h / 2.) - sqrt(x.z*x.z)) * 
+    H(r*r - dot(x.xy, x.xy));
+}
+float f(vec3 x){
+  return
+    square(x - vec3(0.8,0.8,0.8), vec3(1,1,1)) + 
+    circle(x - vec3(0,0,0), 0.5) +
+    cylinder(x - vec3(-0.65,-0.65,-0.65), 0.4, 0.6);
+}
+    </script>
+    <script type="x-shader/x-scalar" id="scalar-field-demo">
 // Write your own code, here. 
 // Code must be written in glsl.
 // Hit "compile" to update the view.
@@ -227,7 +272,7 @@ float f(vec3 x){
   return cos(x.x) * cos(x.y) * cos(x.z);
 }
     </script>
-<script type="x-shader/x-fragment" id="vector-field-demo">
+<script type="x-shader/x-vector" id="vector-field-demo">
 // Write your own code, here. 
 // Code must be written in glsl.
 // Hit "compile" to update the view.
@@ -239,7 +284,7 @@ vec3 f(vec3 x){
   );
 }
 </script>
-    <script type="x-shader/x-fragment" id="gradient-demo">
+    <script type="x-shader/x-vector" id="gradient-demo">
 // Write your own code, here. 
 // Code must be written in glsl.
 // Hit "compile" to update the view.
@@ -257,7 +302,7 @@ vec3 f(vec3 x){
     g(x+dx*k)-g(x)) / dx;
 }
     </script>
-    <script type="x-shader/x-fragment" id="divergence-demo">
+    <script type="x-shader/x-scalar" id="divergence-demo">
 // Write your own code, here. 
 // Code must be written in glsl.
 // Hit "compile" to update the view.
@@ -279,7 +324,7 @@ float f(vec3 x){
        (g(x+dx*k)-g(x)).z) / dx;
 }
     </script>
-    <script type="x-shader/x-fragment" id="curl-demo">
+    <script type="x-shader/x-vector" id="curl-demo">
 // Write your own code, here. 
 // Code must be written in glsl.
 // Hit "compile" to update the view.
@@ -306,7 +351,7 @@ vec3 f(vec3 x){
       );
 }
     </script>
-    <script type="x-shader/x-fragment" id="scalar-laplacian-demo">
+    <script type="x-shader/x-scalar" id="scalar-laplacian-demo">
 // Write your own code, here. 
 // Code must be written in glsl.
 // Hit "compile" to update the view.
@@ -331,7 +376,7 @@ float f(vec3 x){
        (grad_g(x+dx*k)-grad_g(x)).z) / dx;
 }
     </script>
-    <script type="x-shader/x-fragment" id="vector-laplacian-demo">
+    <script type="x-shader/x-vector" id="vector-laplacian-demo">
 // Write your own code, here. 
 // Code must be written in glsl.
 // Hit "compile" to update the view.
