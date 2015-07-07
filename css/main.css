@@ -47,6 +47,7 @@ h1,h2,h3 {
 	top: 2em;
 }
 .section-title{
+	padding-top: 0;
 	position: relative;
 	right: 1em;
 }

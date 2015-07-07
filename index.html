@@ -94,36 +94,28 @@
 	<div class = "bottom right info">
 		<div>
 			<h2 class="section-type" style="display: inline-block; float: clear">Code</h2>
-			<button class="compile" style="float:right;">
+			<button id="compile" style="float:right;">
 				<img src="icons/download-512px.svg" height="12em">
 				Compile
 				<span class="instructions">ctrl+s</span>
 			</button>
+			<select id="demo" style="float:right;">
+				<option value="#scalar-field-demo">scalar field</option>
+				<option value="#vector-field-demo">vector field</option>
+    			<option value="#gradient-demo">gradient </option>
+    			<option value="#divergence-demo">divergence </option>
+    			<option value="#curl-demo">curl </option>
+    			<option value="#scalar-laplacian-demo">scalar laplacian</option>
+    			<option value="#vector-laplacian-demo">vector laplacian</option>
+    			<option value="#geometry-demo">geometry</option>
+			</select>
 		</div>
 		<div id="scalarFieldEditorContainer" style="opacity: 0.9">
-			<textarea id="scalarFieldEditor" cols="80" height="auto", class="fieldEditorContainer">
-// Write your own code, here. 
-// Code must be written in glsl.
-// Hit "compile" to update the view.
-float f(vec3 x){
-  return cos(x.x) * cos(x.y) * cos(x.z);
-}
-			</textarea>
+			<textarea id="scalarFieldEditor" cols="80" height="auto", class="fieldEditorContainer"></textarea>
 		</div>
 
 		<div id="vectorFieldEditorContainer" style="opacity: 0.9" class="fieldEditorContainer">
-			<textarea id="vectorFieldEditor" cols="80" height="auto">
-// Write your own code, here. 
-// Code must be written in glsl.
-// Hit "compile" to update the view.
-vec3 f(vec3 x){
-  return vec3(
-    cos(x.x) * cos(x.y) * cos(x.z),
-    sin(x.x) * sin(x.y) * sin(x.z),
-    cos(x.x) * cos(x.y) * cos(x.z)
-  );
-}
-			</textarea>
+			<textarea id="vectorFieldEditor" cols="80" height="auto"></textarea>
 		</div>
 	</div>
     <script type="x-shader/x-vertex" id="vectorVertexShader">
@@ -219,7 +211,149 @@ vec3 f(vec3 x){
     </script> 
 	
 	<!-- EXAMPLE INPUT -->
-    <script type="x-shader/x-scalar" id="geometry-demo">
+	<script type="x-shader/x-scalar" id="scalar-field-demo" data-field-type="scalar">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+float f(vec3 x){
+  return cos(x.x) * cos(x.y) * cos(x.z);
+}
+	</script>
+	<script type="x-shader/x-vector" id="vector-field-demo" data-field-type="vector">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+vec3 f(vec3 x){
+  return vec3(
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
+}
+	</script>
+    <script type="x-shader/x-vector" id="gradient-demo" data-field-type="vector">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+float g(vec3 x){
+  return cos(x.x) * cos(x.y) * cos(x.z);
+}
+vec3 f(vec3 x){
+  return vec3(
+    g(x+dx*i)-g(x),
+    g(x+dx*j)-g(x),
+    g(x+dx*k)-g(x)) / dx;
+}
+    </script>
+    <script type="x-shader/x-scalar" id="divergence-demo" data-field-type="scalar">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+vec3 g(vec3 x){
+  return vec3(
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
+}
+float f(vec3 x){
+  return 
+      ((g(x+dx*i)-g(x)).x + 
+       (g(x+dx*j)-g(x)).y + 
+       (g(x+dx*k)-g(x)).z) / dx;
+}
+    </script>
+    <script type="x-shader/x-vector" id="curl-demo" data-field-type="vector">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+vec3 g(vec3 x){
+  return vec3(
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
+}
+vec3 f(vec3 x){
+  vec3 dgdx = (g(x+dx*i)-g(x)) / dx;
+  vec3 dgdy = (g(x+dx*j)-g(x)) / dx;
+  vec3 dgdz = (g(x+dx*k)-g(x)) / dx;
+  return 
+    vec3(
+        dgdy.z - dgdz.y,
+        dgdz.x - dgdx.z,
+        dgdx.y - dgdy.x
+      );
+}
+    </script>
+    <script type="x-shader/x-scalar" id="scalar-laplacian-demo" data-field-type="scalar">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+float g(vec3 x){
+  return cos(x.x) * cos(x.y) * cos(x.z);
+}
+vec3 grad_g(vec3 x){
+  return 
+    vec3(
+      g(x+dx*i)-g(x),
+      g(x+dx*j)-g(x),
+      g(x+dx*k)-g(x)) / dx;
+}
+float f(vec3 x){
+    return
+      ((grad_g(x+dx*i)-grad_g(x)).x + 
+       (grad_g(x+dx*j)-grad_g(x)).y + 
+       (grad_g(x+dx*k)-grad_g(x)).z) / dx;
+}
+    </script>
+    <script type="x-shader/x-vector" id="vector-laplacian-demo" data-field-type="vector">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+vec3 g(vec3 x){
+  return vec3(
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
+}
+float div_g(vec3 x){
+  return  
+    ((g(x+dx*i)-g(x)).x + 
+     (g(x+dx*j)-g(x)).y + 
+     (g(x+dx*k)-g(x)).z) / dx;
+}
+vec3 f(vec3 x){
+  return 
+    vec3(
+      div_g(x+dx*i)-div_g(x),
+      div_g(x+dx*j)-div_g(x),
+      div_g(x+dx*k)-div_g(x)) / dx;
+}
+    </script>
+
+    <script type="x-shader/x-scalar" id="geometry-demo" data-field-type="scalar">
 // Write your own code, here. 
 // Code must be written in glsl.
 // Hit "compile" to update the view.
@@ -264,149 +398,30 @@ float f(vec3 x){
     cylinder(x - vec3(-0.65,-0.65,-0.65), 0.4, 0.6);
 }
     </script>
-    <script type="x-shader/x-scalar" id="scalar-field-demo">
-// Write your own code, here. 
-// Code must be written in glsl.
-// Hit "compile" to update the view.
-float f(vec3 x){
-  return cos(x.x) * cos(x.y) * cos(x.z);
-}
-    </script>
-<script type="x-shader/x-vector" id="vector-field-demo">
-// Write your own code, here. 
-// Code must be written in glsl.
-// Hit "compile" to update the view.
-vec3 f(vec3 x){
-  return vec3(
-    cos(x.x) * cos(x.y) * cos(x.z),
-    sin(x.x) * sin(x.y) * sin(x.z),
-    cos(x.x) * cos(x.y) * cos(x.z)
-  );
-}
-</script>
-    <script type="x-shader/x-vector" id="gradient-demo">
-// Write your own code, here. 
-// Code must be written in glsl.
-// Hit "compile" to update the view.
-const float dx = 0.001;
-const vec3 i = vec3(1,0,0);
-const vec3 j = vec3(0,1,0);
-const vec3 k = vec3(0,0,1);
-float g(vec3 x){
-  return cos(x.x) * cos(x.y) * cos(x.z);
-}
-vec3 f(vec3 x){
-  return vec3(
-    g(x+dx*i)-g(x),
-    g(x+dx*j)-g(x),
-    g(x+dx*k)-g(x)) / dx;
-}
-    </script>
-    <script type="x-shader/x-scalar" id="divergence-demo">
-// Write your own code, here. 
-// Code must be written in glsl.
-// Hit "compile" to update the view.
-const float dx = 0.001;
-const vec3 i = vec3(1,0,0);
-const vec3 j = vec3(0,1,0);
-const vec3 k = vec3(0,0,1);
-vec3 g(vec3 x){
-  return vec3(
-    cos(x.x) * cos(x.y) * cos(x.z),
-    sin(x.x) * sin(x.y) * sin(x.z),
-    cos(x.x) * cos(x.y) * cos(x.z)
-  );
-}
-float f(vec3 x){
-  return 
-      ((g(x+dx*i)-g(x)).x + 
-       (g(x+dx*j)-g(x)).y + 
-       (g(x+dx*k)-g(x)).z) / dx;
-}
-    </script>
-    <script type="x-shader/x-vector" id="curl-demo">
-// Write your own code, here. 
-// Code must be written in glsl.
-// Hit "compile" to update the view.
-const float dx = 0.001;
-const vec3 i = vec3(1,0,0);
-const vec3 j = vec3(0,1,0);
-const vec3 k = vec3(0,0,1);
-vec3 g(vec3 x){
-  return vec3(
-    cos(x.x) * cos(x.y) * cos(x.z),
-    sin(x.x) * sin(x.y) * sin(x.z),
-    cos(x.x) * cos(x.y) * cos(x.z)
-  );
-}
-vec3 f(vec3 x){
-  vec3 dgdx = (g(x+dx*i)-g(x)) / dx;
-  vec3 dgdy = (g(x+dx*j)-g(x)) / dx;
-  vec3 dgdz = (g(x+dx*k)-g(x)) / dx;
-  return 
-    vec3(
-        dgdy.z - dgdz.y,
-        dgdz.x - dgdx.z,
-        dgdx.y - dgdy.x
-      );
-}
-    </script>
-    <script type="x-shader/x-scalar" id="scalar-laplacian-demo">
-// Write your own code, here. 
-// Code must be written in glsl.
-// Hit "compile" to update the view.
-const float dx = 0.001;
-const vec3 i = vec3(1,0,0);
-const vec3 j = vec3(0,1,0);
-const vec3 k = vec3(0,0,1);
-float g(vec3 x){
-  return cos(x.x) * cos(x.y) * cos(x.z);
-}
-vec3 grad_g(vec3 x){
-  return 
-    vec3(
-      g(x+dx*i)-g(x),
-      g(x+dx*j)-g(x),
-      g(x+dx*k)-g(x)) / dx;
-}
-float f(vec3 x){
-    return
-      ((grad_g(x+dx*i)-grad_g(x)).x + 
-       (grad_g(x+dx*j)-grad_g(x)).y + 
-       (grad_g(x+dx*k)-grad_g(x)).z) / dx;
-}
-    </script>
-    <script type="x-shader/x-vector" id="vector-laplacian-demo">
-// Write your own code, here. 
-// Code must be written in glsl.
-// Hit "compile" to update the view.
-const float dx = 0.001;
-const vec3 i = vec3(1,0,0);
-const vec3 j = vec3(0,1,0);
-const vec3 k = vec3(0,0,1);
-vec3 g(vec3 x){
-  return vec3(
-    cos(x.x) * cos(x.y) * cos(x.z),
-    sin(x.x) * sin(x.y) * sin(x.z),
-    cos(x.x) * cos(x.y) * cos(x.z)
-  );
-}
-float div_g(vec3 x){
-  return  
-    ((g(x+dx*i)-g(x)).x + 
-     (g(x+dx*j)-g(x)).y + 
-     (g(x+dx*k)-g(x)).z) / dx;
-}
-vec3 f(vec3 x){
-  return 
-    vec3(
-      div_g(x+dx*i)-div_g(x),
-      div_g(x+dx*j)-div_g(x),
-      div_g(x+dx*k)-div_g(x)) / dx;
-}
-    </script>
-
 	<script type="text/javascript">
+		function field_type (value) {
+			scene.remove(field);
+			$('#scalarFieldEditorContainer').hide();
+			$('#vectorFieldEditorContainer').hide();
+
+			if (value == "scalar") {
+				field = scalarField;
+				$('#scalarFieldEditorContainer').show();
+			} else {
+				field = vectorField;
+				$('#vectorFieldEditorContainer').show();
+			}
+
+			scene.add(field);
+		}
+		function compile () {
+			var field_type = $('#field-type').val();
+			if (field_type == "vector") {
+				vectorShader.compile(vectorFieldEditor.getValue());
+			} else if (field_type == "scalar") {
+				scalarShader.compile(scalarFieldEditor.getValue());
+			};
+		}
 		THREE.ShaderMaterial.prototype.compile = function(user_input) {
 			this.vertexShader = this.vertex_template.replace("//USER_INPUT_GOES_HERE", user_input);
 			this.fragmentShader = this.fragment_template.replace("//USER_INPUT_GOES_HERE", user_input);
@@ -421,7 +436,8 @@ vec3 f(vec3 x){
 			mode: "x-shader/x-vertex",
 			lineNumbers: true,
 		});
-		// vectorFieldEditor.setSize(400,150);
+		vectorFieldEditor.setValue($('#vector-field-demo').text());
+		// vectorFieldEditor.setSize(350,250);
 		// vectorFieldEditor.viewportMargin = Infinity;
 		vectorFieldEditor.setOption("theme", "monokai");
 
@@ -434,7 +450,8 @@ vec3 f(vec3 x){
 			mode: "x-shader/x-vertex",
 			lineNumbers: true,
 		});
-		// scalarFieldEditor.setSize(400,150);
+		scalarFieldEditor.setValue($('#scalar-field-demo').text());
+		// scalarFieldEditor.setSize(350,250);
 		// scalarFieldEditor.viewportMargin = Infinity;
 		scalarFieldEditor.setOption("theme", 'monokai');
 
@@ -579,20 +596,7 @@ vec3 f(vec3 x){
 		}
 
 		$('#field-type').change(function(event) {
-			scene.remove(field);
-			$('#scalarFieldEditorContainer').hide();
-			$('#vectorFieldEditorContainer').hide();
-
-			var field_type = $(this).val();
-			if (field_type == "scalar") {
-				field = scalarField;
-				$('#scalarFieldEditorContainer').show();
-			} else {
-				field = vectorField;
-				$('#vectorFieldEditorContainer').show();
-			}
-
-			scene.add(field);
+			field_type($(this).val());
 		});
 		$('#domain-x').change(function(event) {
 			vectorShader.uniforms.domain_center.value.x = $('#domain-x').val();
@@ -612,7 +616,7 @@ vec3 f(vec3 x){
 			scalarShader.uniforms.domain_center.value.z = $('#domain-z').val();
 			scalarShader.uniforms.domain_center.needsUpdate = true;
 		});
-		$('#domain-width').change(function(e) {
+		$('#domain-width').change(function(event) {
 			vectorShader.uniforms.domain_width.value = $('#domain-width').val();
 			vectorShader.uniforms.domain_width.needsUpdate = true;
 			scalarShader.uniforms.domain_width.value = $('#domain-width').val();
@@ -632,13 +636,22 @@ vec3 f(vec3 x){
 			scalarShader.uniforms.range.value.x = $('#range-min').val();
 			scalarShader.uniforms.range.needsUpdate = true;
 		});
-		$('.compile').click(function(event) {
-			var field_type = $('#field-type').val();
-			if (field_type == "vector") {
-				vectorShader.compile(vectorFieldEditor.getValue());
-			} else if (field_type) {
-				scalarShader.compile(scalarFieldEditor.getValue());
+		$('#demo').click(function(event) {
+			var demo_selector = $(this).val();
+			var field_type_value = $(demo_selector).data('field-type');
+			field_type(field_type_value)
+			
+			var editor;
+			if (field_type_value == "vector") {
+				editor = vectorFieldEditor
+			} else if (field_type_value == "scalar") {
+				editor = scalarFieldEditor
 			};
+			editor.setValue($(demo_selector).text());
+			compile();
+		});
+		$('#compile').click(function(event) {
+			compile();
 		});
 	</script>
 </body>
