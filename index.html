@@ -9,6 +9,9 @@
 	
 		<script src="http://code.jquery.com/jquery.min.js"></script>
 
+		<script type="text/javascript"
+		  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=AM_HTMLorMML-full"></script>
+
 		<script src="codemirror/codemirror.js"></script>
 		<link rel="stylesheet" href="codemirror/codemirror.css">
 		<script src="codemirror/clike.js"></script>
@@ -94,21 +97,70 @@
 	<div class = "bottom right info">
 		<div>
 			<h2 class="section-type" style="display: inline-block; float: clear">Code</h2>
-			<button id="compile" style="float:right;">
-				<img src="icons/download-512px.svg" height="12em">
-				Compile
-				<span class="instructions">ctrl+s</span>
-			</button>
-			<select id="demo" style="float:right;">
-				<option value="#scalar-field-demo">scalar field</option>
-				<option value="#vector-field-demo">vector field</option>
-    			<option value="#gradient-demo">gradient </option>
-    			<option value="#divergence-demo">divergence </option>
-    			<option value="#curl-demo">curl </option>
-    			<option value="#scalar-laplacian-demo">scalar laplacian</option>
-    			<option value="#vector-laplacian-demo">vector laplacian</option>
-    			<option value="#geometry-demo">geometry</option>
-			</select>
+						<button id="compile" style="float:right;">
+							<img src="icons/download-512px.svg" height="12em">
+							Compile
+							<span class="instructions">ctrl+s</span>
+						</button>
+						<select id="demo" style="float:right;">
+							<option value="scalar-field-demo">scalar field</option>
+							<option value="vector-field-demo">vector field</option>
+			    			<option value="gradient-demo">gradient </option>
+			    			<option value="divergence-demo">divergence </option>
+			    			<option value="curl-demo">curl </option>
+			    			<option value="scalar-laplacian-demo">scalar laplacian</option>
+			    			<option value="vector-laplacian-demo">vector laplacian</option>
+			    			<option value="geometry-demo">geometry</option>
+						</select>
+<div class="hidden gradient-field-demo math">`nabla cos(x_x) cos(x_y) cos(x_z)`</div>
+<div class="hidden vector-field-demo math">
+`
+f = [[cos(x_x), cos(x_y), cos(x_z)],
+     [sin(x_x), sin(x_y), sin(x_z)],
+     [cos(x_x), cos(x_y), cos(x_z)]]
+`
+</div>
+<div class="hidden divergence-demo math">
+<p>`
+g = [[cos(x_x), cos(x_y), cos(x_z)],
+     [sin(x_x), sin(x_y), sin(x_z)],
+     [cos(x_x), cos(x_y), cos(x_z)]]
+`</p>
+<p>`f = nabla * g`</p>
+</div>
+<div class="hidden curl-demo math">
+<p>`g = [[cos(x_x), cos(x_y), cos(x_z)],
+     [sin(x_x), sin(x_y), sin(x_z)],
+     [cos(x_x), cos(x_y), cos(x_z)]]`</p>
+<p>`f = nabla xx g`</p>
+</div>
+<div class="hidden vector-laplacian-demo math">
+<p>`g = [[cos(x_x), cos(x_y), cos(x_z)],
+     [sin(x_x), sin(x_y), sin(x_z)],
+     [cos(x_x), cos(x_y), cos(x_z)]]`</p>
+<p>`f = nabla ( nabla * g )`</p>
+</div>
+<div class="hidden scalar-laplacian-demo math">`f = nabla * nabla cos(x_x) cos(x_y) cos(x_z)`</div>
+<div class="hidden geometry-demo math">
+<p>`H(x) = {(1, if x > 0), 
+		(0, if x <= 0):}`</p>
+<p>`H(x, k) = 1 / (1 + e^(-2kx))`</p>
+<p>`"unite"(a,b) = a + b`</p>
+<p>`"intersection"(a,b) = a * b`</p>
+<p>`"circle"(x,r) = H(r^2 - x * x)`</p>
+<p>`"square"(x, "size") = 
+	H("size"_x // 2 - abs(x_x)) * 
+	H("size"_y // 2 - abs(x_y)) * 
+	H("size"_z // 2 - abs(x_z))`</p>
+<p>`"cylinder"(x,r,h) = 
+	H(h/2 - abs(x_z)) * 
+	H(r^2 - x_x^2 + x_y^2)`</p>
+<p>
+	<p>`"square"(x - [0.8,0.8,0.8], [1,1,1]) + `</p>
+	<p>`"circle"(x - [0,0,0], 0.5) + `</p>
+	<p>`"cylinder"(x + [0.65,0.65,0.65], 0.4, 0.6)`</p>
+</p>
+</div>
 		</div>
 		<div id="scalarFieldEditorContainer" style="opacity: 0.9">
 			<textarea id="scalarFieldEditor" cols="80" height="auto", class="fieldEditorContainer"></textarea>
@@ -403,7 +455,7 @@ float f(vec3 x){
 			scene.remove(field);
 			$('#scalarFieldEditorContainer').hide();
 			$('#vectorFieldEditorContainer').hide();
-
+			$('#field-type').val(value);
 			if (value == "scalar") {
 				field = scalarField;
 				$('#scalarFieldEditorContainer').show();
@@ -637,10 +689,12 @@ float f(vec3 x){
 			scalarShader.uniforms.range.needsUpdate = true;
 		});
 		$('#demo').click(function(event) {
-			var demo_selector = $(this).val();
+			var demo_selector = "#" + $(this).val();
+			var asciimath_selector = "div." + $(this).val();
 			var field_type_value = $(demo_selector).data('field-type');
 			field_type(field_type_value)
-			
+			$("div.math").hide();
+			$(asciimath_selector).show();
 			var editor;
 			if (field_type_value == "vector") {
 				editor = vectorFieldEditor
