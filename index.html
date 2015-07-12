@@ -469,9 +469,11 @@ float f(vec3 x){
 			if (value == "scalar") {
 				field = scalarField;
 				$('#scalarFieldEditorContainer').show();
+				$('#demo').val('scalar-field-demo');
 			} else {
 				field = vectorField;
 				$('#vectorFieldEditorContainer').show();
+				$('#demo').val('vector-field-demo');
 			}
 
 			scene.add(field);
@@ -657,7 +659,7 @@ float f(vec3 x){
 			loadTime(Time);
 		}
 
-		$('#field-type').change(function(event) {
+		$('#field-type').on("keyup keydown change", function(event) {
 			field_type($(this).val());
 		});
 		$('#domain-x').change(function(event) {
