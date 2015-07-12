@@ -601,8 +601,9 @@ float f(vec3 x){
 				Detector.addGetWebGLMessage();
 				return true;
 			}
+			var container = $("#container").get(0);
 			renderer.setSize( window.innerWidth, window.innerHeight );
-			document.getElementById('container').appendChild(renderer.domElement);
+			$("#container").get(0).appendChild(renderer.domElement);
 
 			// create a scene
 			scene = new THREE.Scene();
