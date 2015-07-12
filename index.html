@@ -698,7 +698,7 @@ float f(vec3 x){
 			scalarShader.uniforms.range.value.x = $('#range-min').val();
 			scalarShader.uniforms.range.needsUpdate = true;
 		});
-		$('#demo').on("change", function(event) {
+		$('#demo').on("keyup keydown change", function(event) {
 			var demo_selector = "#" + $(this).val();
 			var asciimath_selector = "div." + $(this).val();
 			var field_type_value = $(demo_selector).data('field-type');
