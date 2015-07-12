@@ -111,7 +111,7 @@ h1,h2,h3 {
 }
 .input{
 	color: #DDDDDD;
-	background-color: #000000;
+	background-color: #141414;
 	opacity: 0.85;
 	position: absolute;
 	right: 0;
@@ -128,8 +128,8 @@ h1,h2,h3 {
 .options sub {
 	font-size: 61%;
 }
-.instructions {
-	color: grey;
+.hint {
+	/*color: #141414;*/
 	font-style: italic;
 	font-size: 61%;
 	float:right;
@@ -145,6 +145,9 @@ div.math {
 div.math p {
 	overflow-y: hidden;
 	overflow-x: hidden;
+}
+.math .expression {
+	padding-left: 1em;
 }
 .controls{
 	padding-right: 1em;

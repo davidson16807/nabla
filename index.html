@@ -99,30 +99,30 @@
 			<p>`f = cos(x_x) cos(x_y) cos(x_z)`</p>
 		</div>
 		<div class="hidden vector-field-demo math">
-			<p>`f = [[cos(x_x)cos(x_y)cos(x_z)],
+			<p>`vec(f) = [[cos(x_x)cos(x_y)cos(x_z)],
 				     [sin(x_x)sin(x_y)sin(x_z)],
 				     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
 		</div>
 		<div class="hidden gradient-demo math">
-			<p>`f = nabla cos(x_x) cos(x_y) cos(x_z)`</p>
+			<p>`vec(f) = nabla cos(x_x) cos(x_y) cos(x_z)`</p>
 		</div>
 		<div class="hidden divergence-demo math">
-			<p>`g = [[cos(x_x)cos(x_y)cos(x_z)],
+			<p>`vec(g) = [[cos(x_x)cos(x_y)cos(x_z)],
 			     [sin(x_x)sin(x_y)sin(x_z)],
 			     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
-			<p>`f = nabla * g`</p>
+			<p>`f = nabla * vec(g)`</p>
 		</div>
 		<div class="hidden curl-demo math">
-			<p>`g = [[cos(x_x)cos(x_y)cos(x_z)],
+			<p>`vec(g) = [[cos(x_x)cos(x_y)cos(x_z)],
 			     [sin(x_x)sin(x_y)sin(x_z)],
 			     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
-			<p>`f = nabla xx g`</p>
+			<p>`vec(f) = nabla xx vec(g)`</p>
 		</div>
 		<div class="hidden vector-laplacian-demo math">
-			<p>`g = [[cos(x_x)cos(x_y)cos(x_z)],
+			<p>`vec(g) = [[cos(x_x)cos(x_y)cos(x_z)],
 			     [sin(x_x)sin(x_y)sin(x_z)],
 			     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
-			<p>`f = nabla ( nabla * g )`</p>
+			<p>`vec(f) = nabla ( nabla * vec(g) )`</p>
 		</div>
 		<div class="hidden scalar-laplacian-demo math">
 			<p>`f = nabla * nabla cos(x_x) cos(x_y) cos(x_z)`</p>
@@ -131,24 +131,26 @@
 			<p>`H(x) = {(1, if x > 0), 
 					(0, if x <= 0):}`</p>
 			<p>`H(x, k) = 1 / (1 + e^(-2kx))`</p>
-			<p>`"unite"(a,b) = a + b`</p>
+			<p>`"union"(a,b) = a + b`</p>
 			<p>`"intersection"(a,b) = a * b`</p>
-			<p>`"circle"(x,r) = H(r^2 - x * x)`</p>
-			<p>
-				<p>`"square"(x, "size") = `</p>
+			<p>`"circle"(vec(x),r) = H(r^2 - vec(x) * vec(x))`</p>
+			<p>`"square"(vec(x), vec("size")) = `</p>
+			<div class="expression">
 				<p>`H("size"_x // 2 - abs(x_x)) * `</p>
 				<p>`H("size"_y // 2 - abs(x_y)) * `</p>
 				<p>`H("size"_z // 2 - abs(x_z))`</p>
-			</p>
-			<p>`"cylinder"(x,r,h) = 
-				H(h/2 - abs(x_z)) * 
-				H(r^2 - x_x^2 + x_y^2)`</p>
-			<p>
-				<p>`f = `</p>
-				<p>`"square"(x - [0.8,0.8,0.8], [1,1,1]) + `</p>
-				<p>`"circle"(x - [0,0,0], 0.5) + `</p>
-				<p>`"cylinder"(x + [0.65,0.65,0.65], 0.4, 0.6)`</p>
-			</p>
+			</div>
+			<p>`"cylinder"(vec(x),r,h) = `</p>
+			<div class="expression">
+				<p>`H(h//2 - abs(x_z)) * `</p>
+				<p>`H(r^2 - x_x^2 + x_y^2)`</p>
+			</div>
+			<p>`vec(f) = `</p>
+			<div class="expression">
+				<p>`"square"(vec(x) - [2,2,2], [2,2,2]) + `</p>
+				<p>`"circle"(vec(x) - [0,0,0], 1) + `</p>
+				<p>`"cylinder"(vec(x) + [2,2,2], 1, 1.5)`</p>
+			</div>
 		</div>
 		<div>
 			<!-- <h2 class="section-type" style="display: inline-block; float: clear">Code</h2> -->
@@ -160,20 +162,20 @@
 				<textarea id="vectorFieldEditor" cols="80" height="auto"></textarea>
 			</div>
 			<div class="controls">
-				<button id="compile" style="float:right;">
+				<button id="compile">
 					<img src="icons/download-512px.svg" height="12em">
 					Compile
-					<span class="instructions">ctrl+s</span>
+					<span class="hint">ctrl+s</span>
 				</button>
-				<select id="demo" style="float:right;">
-					<option value="scalar-field-demo">scalar field</option>
-					<option value="vector-field-demo">vector field</option>
-					<option value="gradient-demo">gradient </option>
-					<option value="divergence-demo">divergence </option>
-					<option value="curl-demo">curl </option>
-					<option value="scalar-laplacian-demo">scalar laplacian</option>
-					<option value="vector-laplacian-demo">vector laplacian</option>
-					<option value="geometry-demo">geometry</option>
+				<select id="demo">
+					<option value="scalar-field-demo">scalar field demo</option>
+					<option value="vector-field-demo">vector field demo</option>
+					<option value="gradient-demo">gradient demo</option>
+					<option value="divergence-demo">divergence demo</option>
+					<option value="curl-demo">curl demo</option>
+					<option value="scalar-laplacian-demo">scalar laplacian demo</option>
+					<option value="vector-laplacian-demo">vector laplacian demo</option>
+					<option value="geometry-demo">geometry demo</option>
 				</select>
 			</div>
 		</div>
@@ -696,7 +698,7 @@ float f(vec3 x){
 			scalarShader.uniforms.range.value.x = $('#range-min').val();
 			scalarShader.uniforms.range.needsUpdate = true;
 		});
-		$('#demo').click(function(event) {
+		$('#demo').on("change", function(event) {
 			var demo_selector = "#" + $(this).val();
 			var asciimath_selector = "div." + $(this).val();
 			var field_type_value = $(demo_selector).data('field-type');
