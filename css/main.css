@@ -14,6 +14,10 @@ body {
 	font-size	: 100%;
 }
 
+html, body {
+	height 		: 100%;
+}
+
 h1,h2,h3 {
 	font-family: Garamond, Garogier, serif;
 	margin-bottom: 0.502%; 
@@ -119,6 +123,7 @@ h1,h2,h3 {
 }
 .options{
 	color: #DDDDDD;
+	font-size: 80%;
 }
 .options sub {
 	font-size: 61%;
@@ -130,11 +135,16 @@ h1,h2,h3 {
 	float:right;
 	padding-left:1em;
 }
-.math {
+div.math {
 	padding-left: 1em;
-	padding-top: 1em;
-	padding-bottom: 1em;
-	font-size: 90%;
+	font-size: 80%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	max-height: 150px;
+}
+div.math p {
+	overflow-y: hidden;
+	overflow-x: hidden;
 }
 .controls{
 	padding-right: 1em;
