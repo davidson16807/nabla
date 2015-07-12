@@ -126,6 +126,8 @@ h1,h2,h3 {
 .options{
 	color: #DDDDDD;
 	font-size: 80%;
+	width: 100%;
+	padding-left: 1em;
 }
 .options sub {
 	font-size: 61%;
@@ -142,7 +144,7 @@ div.math {
 	font-size: 80%;
 	overflow-y: auto;
 	overflow-x: hidden;
-	max-height: 150px;
+	max-height: 200px;
 }
 div.math p {
 	overflow-y: hidden;
