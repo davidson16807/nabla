@@ -105,14 +105,20 @@ h1,h2,h3 {
 .hidden {
 	display: none;
 }
-.input{
+.side-bar{
 	color: #DDDDDD;
 	background-color: #141414;
 	opacity: 0.85;
 	position: absolute;
 	right: 0;
-	bottom: 0;
-	padding-bottom: 1em;
+	height: 100%;
+	width: 38%;
+}
+.input{
+	position: absolute;
+	bottom:0;
+	right: 0;
+	width: 100%;
 }
 .input sub {
 	font-size: 61%;
@@ -150,5 +156,5 @@ div.math p {
 }
 #container{
 	position: fixed;
-	right: 10%;
+	right: 18%;
 }

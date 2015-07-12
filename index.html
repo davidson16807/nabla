@@ -53,47 +53,47 @@
 	<div id="credits-section" class="hidden details">
 	</div>
 	</div>
-
-	<div class="top right options" style="display: block">
-		<h2 class="section-title">Options</h2>
-		<table>
-			<tr>
-				<td>Field Type:</td>
-				<td>
-					<select id="field-type">
-						<option value="scalar">Scalar</option>
-						<option value="vector">Vector</option>
-					</select>
-				</td>
-			</tr>
-			<tr>
-				<td>Domain center:</td>
-				<td>
-					<input id="domain-x" type="number" value="0" step="0.1" style="width: 2.5em" />
-					<sub>x</sub>
-					<input id="domain-y" type="number" value="0" step="0.1" style="width: 2.5em" />
-					<sub>y</sub>
-					<input id="domain-z" type="number" value="0" step="0.1" style="width: 2.5em" />
-					<sub>z</sub>
-				</td>
-			</tr>
-			<tr>
-				<td>Domain width:</td>
-				<td>
-					<input id="domain-width" type="number" value="8" style="width: 2.5em" />
-				</td>
-			</tr>
-			<tr>
-				<td>Range:</td>
-				<td>
-					<input id="range-min" type="number" value="0" max="1" style="width: 2.5em" />
-					<sub>min</sub>
-					<input id="range-max" type="number" value="1" min="0" style="width: 2.5em" />
-					<sub>max</sub>
-				</td>
-			</tr>
-		</table>
-	</div> 
+	<div class="side-bar">
+		<div class="top right options" style="display: block">
+			<h2 class="section-title">Options</h2>
+			<table>
+				<tr>
+					<td>Field Type:</td>
+					<td>
+						<select id="field-type">
+							<option value="scalar">Scalar</option>
+							<option value="vector">Vector</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>Domain center:</td>
+					<td>
+						<input id="domain-x" type="number" value="0" step="0.1" style="width: 2.5em" />
+						<sub>x</sub>
+						<input id="domain-y" type="number" value="0" step="0.1" style="width: 2.5em" />
+						<sub>y</sub>
+						<input id="domain-z" type="number" value="0" step="0.1" style="width: 2.5em" />
+						<sub>z</sub>
+					</td>
+				</tr>
+				<tr>
+					<td>Domain width:</td>
+					<td>
+						<input id="domain-width" type="number" value="8" style="width: 2.5em" />
+					</td>
+				</tr>
+				<tr>
+					<td>Range:</td>
+					<td>
+						<input id="range-min" type="number" value="0" max="1" style="width: 2.5em" />
+						<sub>min</sub>
+						<input id="range-max" type="number" value="1" min="0" style="width: 2.5em" />
+						<sub>max</sub>
+					</td>
+				</tr>
+			</table>
+		</div> 
 	<div class = "input">
 		<div class="hidden scalar-field-demo math">
 			<p>`f = cos(x_x) cos(x_y) cos(x_z)`</p>
@@ -153,13 +153,12 @@
 			</div>
 		</div>
 		<div>
-			<!-- <h2 class="section-type" style="display: inline-block; float: clear">Code</h2> -->
 			<div id="scalarFieldEditorContainer" style="opacity: 0.9">
-				<textarea id="scalarFieldEditor" cols="80" height="auto", class="fieldEditorContainer"></textarea>
+				<textarea id="scalarFieldEditor" cols="80" height="auto" width="100%", class="fieldEditorContainer"></textarea>
 			</div>
 
 			<div id="vectorFieldEditorContainer" style="opacity: 0.9" class="fieldEditorContainer">
-				<textarea id="vectorFieldEditor" cols="80" height="auto"></textarea>
+				<textarea id="vectorFieldEditor" cols="80" height="auto" width="100%",></textarea>
 			</div>
 			<div class="controls">
 				<button id="compile">
@@ -178,6 +177,7 @@
 					<option value="geometry-demo">geometry demo</option>
 				</select>
 			</div>
+		</div>
 		</div>
 	</div>
     <script type="x-shader/x-vertex" id="vectorVertexShader">
