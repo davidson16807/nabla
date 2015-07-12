@@ -105,10 +105,22 @@ h1,h2,h3 {
 .hidden {
 	display: none;
 }
-.info{
+.input{
+	color: #DDDDDD;
+	background-color: #000000;
+	opacity: 0.85;
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	padding-bottom: 1em;
+}
+.input sub {
+	font-size: 61%;
+}
+.options{
 	color: #DDDDDD;
 }
-.info sub {
+.options sub {
 	font-size: 61%;
 }
 .instructions {
@@ -117,4 +129,13 @@ h1,h2,h3 {
 	font-size: 61%;
 	float:right;
 	padding-left:1em;
+}
+.math {
+	padding-left: 1em;
+	padding-top: 1em;
+	padding-bottom: 1em;
+	font-size: 90%;
+}
+.controls{
+	padding-right: 1em;
 }

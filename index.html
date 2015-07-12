@@ -54,7 +54,7 @@
 	</div>
 	</div>
 
-	<div class="top right info" style="display: block">
+	<div class="top right options" style="display: block">
 		<h2 class="section-title">Options</h2>
 		<table>
 			<tr>
@@ -94,86 +94,89 @@
 			</tr>
 		</table>
 	</div> 
-	<div class = "bottom right info">
-	<div class="hidden scalar-field-demo math">`f = cos(x_x) cos(x_y) cos(x_z)`</div>
-		<div class="hidden vector-field-demo math">
-		`
-		f = [[cos(x_x)cos(x_y)cos(x_z)],
-		     [sin(x_x)sin(x_y)sin(x_z)],
-		     [cos(x_x)cos(x_y)cos(x_z)]]
-		`
+	<div class = "input">
+		<div class="hidden scalar-field-demo math">
+			`f = cos(x_x) cos(x_y) cos(x_z)`
 		</div>
-		<div class="hidden gradient-demo math">`f = nabla cos(x_x) cos(x_y) cos(x_z)`</div>
+		<div class="hidden vector-field-demo math">
+			`f = [[cos(x_x)cos(x_y)cos(x_z)],
+			     [sin(x_x)sin(x_y)sin(x_z)],
+			     [cos(x_x)cos(x_y)cos(x_z)]]`
+		</div>
+		<div class="hidden gradient-demo math">
+			`f = nabla cos(x_x) cos(x_y) cos(x_z)`
+		</div>
 		<div class="hidden divergence-demo math">
-		<p>`
-		g = [[cos(x_x)cos(x_y)cos(x_z)],
-		     [sin(x_x)sin(x_y)sin(x_z)],
-		     [cos(x_x)cos(x_y)cos(x_z)]]
-		`</p>
-		<p>`f = nabla * g`</p>
+			<p>`g = [[cos(x_x)cos(x_y)cos(x_z)],
+			     [sin(x_x)sin(x_y)sin(x_z)],
+			     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
+			<p>`f = nabla * g`</p>
 		</div>
 		<div class="hidden curl-demo math">
-		<p>`g = [[cos(x_x)cos(x_y)cos(x_z)],
-		     [sin(x_x)sin(x_y)sin(x_z)],
-		     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
-		<p>`f = nabla xx g`</p>
+			<p>`g = [[cos(x_x)cos(x_y)cos(x_z)],
+			     [sin(x_x)sin(x_y)sin(x_z)],
+			     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
+			<p>`f = nabla xx g`</p>
 		</div>
 		<div class="hidden vector-laplacian-demo math">
-		<p>`g = [[cos(x_x)cos(x_y)cos(x_z)],
-		     [sin(x_x)sin(x_y)sin(x_z)],
-		     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
-		<p>`f = nabla ( nabla * g )`</p>
+			<p>`g = [[cos(x_x)cos(x_y)cos(x_z)],
+			     [sin(x_x)sin(x_y)sin(x_z)],
+			     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
+			<p>`f = nabla ( nabla * g )`</p>
 		</div>
-		<div class="hidden scalar-laplacian-demo math">`f = nabla * nabla cos(x_x) cos(x_y) cos(x_z)`</div>
+		<div class="hidden scalar-laplacian-demo math">`
+			f = nabla * nabla cos(x_x) cos(x_y) cos(x_z)`
+		</div>
 		<div class="hidden geometry-demo math">
-		<p>`H(x) = {(1, if x > 0), 
-				(0, if x <= 0):}`</p>
-		<p>`H(x, k) = 1 / (1 + e^(-2kx))`</p>
-		<p>`"unite"(a,b) = a + b`</p>
-		<p>`"intersection"(a,b) = a * b`</p>
-		<p>`"circle"(x,r) = H(r^2 - x * x)`</p>
-		<p>
-			<p>`"square"(x, "size") = `</p>
-			<p>`H("size"_x // 2 - abs(x_x)) * `</p>
-			<p>`H("size"_y // 2 - abs(x_y)) * `</p>
-			<p>`H("size"_z // 2 - abs(x_z))`</p>
-		</p>
-		<p>`"cylinder"(x,r,h) = 
-			H(h/2 - abs(x_z)) * 
-			H(r^2 - x_x^2 + x_y^2)`</p>
-		<p>
-			<p>`f = `</p>
-			<p>`"square"(x - [0.8,0.8,0.8], [1,1,1]) + `</p>
-			<p>`"circle"(x - [0,0,0], 0.5) + `</p>
-			<p>`"cylinder"(x + [0.65,0.65,0.65], 0.4, 0.6)`</p>
-		</p>
+			<p>`H(x) = {(1, if x > 0), 
+					(0, if x <= 0):}`</p>
+			<p>`H(x, k) = 1 / (1 + e^(-2kx))`</p>
+			<p>`"unite"(a,b) = a + b`</p>
+			<p>`"intersection"(a,b) = a * b`</p>
+			<p>`"circle"(x,r) = H(r^2 - x * x)`</p>
+			<p>
+				<p>`"square"(x, "size") = `</p>
+				<p>`H("size"_x // 2 - abs(x_x)) * `</p>
+				<p>`H("size"_y // 2 - abs(x_y)) * `</p>
+				<p>`H("size"_z // 2 - abs(x_z))`</p>
+			</p>
+			<p>`"cylinder"(x,r,h) = 
+				H(h/2 - abs(x_z)) * 
+				H(r^2 - x_x^2 + x_y^2)`</p>
+			<p>
+				<p>`f = `</p>
+				<p>`"square"(x - [0.8,0.8,0.8], [1,1,1]) + `</p>
+				<p>`"circle"(x - [0,0,0], 0.5) + `</p>
+				<p>`"cylinder"(x + [0.65,0.65,0.65], 0.4, 0.6)`</p>
+			</p>
 		</div>
 		<div>
 			<!-- <h2 class="section-type" style="display: inline-block; float: clear">Code</h2> -->
-		</div>
-		<div id="scalarFieldEditorContainer" style="opacity: 0.9">
-			<textarea id="scalarFieldEditor" cols="80" height="auto", class="fieldEditorContainer"></textarea>
-		</div>
+			<div id="scalarFieldEditorContainer" style="opacity: 0.9">
+				<textarea id="scalarFieldEditor" cols="80" height="auto", class="fieldEditorContainer"></textarea>
+			</div>
 
-		<div id="vectorFieldEditorContainer" style="opacity: 0.9" class="fieldEditorContainer">
-			<textarea id="vectorFieldEditor" cols="80" height="auto"></textarea>
+			<div id="vectorFieldEditorContainer" style="opacity: 0.9" class="fieldEditorContainer">
+				<textarea id="vectorFieldEditor" cols="80" height="auto"></textarea>
+			</div>
+			<div class="controls">
+				<button id="compile" style="float:right;">
+					<img src="icons/download-512px.svg" height="12em">
+					Compile
+					<span class="instructions">ctrl+s</span>
+				</button>
+				<select id="demo" style="float:right;">
+					<option value="scalar-field-demo">scalar field</option>
+					<option value="vector-field-demo">vector field</option>
+					<option value="gradient-demo">gradient </option>
+					<option value="divergence-demo">divergence </option>
+					<option value="curl-demo">curl </option>
+					<option value="scalar-laplacian-demo">scalar laplacian</option>
+					<option value="vector-laplacian-demo">vector laplacian</option>
+					<option value="geometry-demo">geometry</option>
+				</select>
+			</div>
 		</div>
-
-		<button id="compile" style="float:right;">
-			<img src="icons/download-512px.svg" height="12em">
-			Compile
-			<span class="instructions">ctrl+s</span>
-		</button>
-		<select id="demo" style="float:right;">
-			<option value="scalar-field-demo">scalar field</option>
-			<option value="vector-field-demo">vector field</option>
-			<option value="gradient-demo">gradient </option>
-			<option value="divergence-demo">divergence </option>
-			<option value="curl-demo">curl </option>
-			<option value="scalar-laplacian-demo">scalar laplacian</option>
-			<option value="vector-laplacian-demo">vector laplacian</option>
-			<option value="geometry-demo">geometry</option>
-		</select>
 	</div>
     <script type="x-shader/x-vertex" id="vectorVertexShader">
 		varying vec3 vPosition;
@@ -450,9 +453,9 @@ float cylinder(vec3 x, float r, float h){
 }
 float f(vec3 x){
   return
-	  square(x - vec3(1.5,1.5,1.5), vec3(2,2,2)) + 
+	  square(x - vec3(2,2,2), vec3(2,2,2)) + 
 	  circle(x - vec3(0,0,0), 1.) +
-	  cylinder(x - vec3(-1.5,-1.5,-1.5), 1., 1.5);
+	  cylinder(x + vec3(2,2,2), 1., 1.5);
 }
     </script>
 	<script type="text/javascript">
