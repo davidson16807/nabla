@@ -468,11 +468,9 @@ float f(vec3 x){
 			if (value == "scalar") {
 				field = scalarField;
 				$('#scalarFieldEditorContainer').show();
-				$('#demo').val('scalar-field-demo');
 			} else {
 				field = vectorField;
 				$('#vectorFieldEditorContainer').show();
-				$('#demo').val('vector-field-demo');
 			}
 
 			scene.add(field);
@@ -661,6 +659,11 @@ float f(vec3 x){
 
 		$('#field-type').on("keyup keydown change", function(event) {
 			field_type($(this).val());
+			if(field_type == 'scalar'){
+				$('#demo').val('scalar-field-demo');
+			} else {
+				$('#demo').val('vector-field-demo');
+			}
 		});
 		$('#domain-x').change(function(event) {
 			vectorShader.uniforms.domain_center.value.x = $('#domain-x').val();
