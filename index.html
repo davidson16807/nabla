@@ -328,11 +328,14 @@ vec3 g(vec3 x){
     cos(x.x) * cos(x.y) * cos(x.z)
   );
 }
-float f(vec3 x){
+float div(vec3 gx, vec3 gxdxi, vec3 gxdxj, vec3 gxdxk){
   return 
-      ((g(x+dx*i)-g(x)).x + 
-       (g(x+dx*j)-g(x)).y + 
-       (g(x+dx*k)-g(x)).z) / dx;
+    ((gxdxi-gx).x + 
+     (gxdxj-gx).y + 
+     (gxdxk-gx).z) / dx;
+}
+float f(vec3 x){
+  return div(g(x), g(x+dx*i), g(x+dx*j), g(x+dx*k));
 }
     </script>
     <script type="x-shader/x-vector" id="curl-demo" data-field-type="vector">
