@@ -353,16 +353,19 @@ vec3 g(vec3 x){
     cos(x.x) * cos(x.y) * cos(x.z)
   );
 }
-vec3 f(vec3 x){
-  vec3 dgdx = (g(x+dx*i)-g(x)) / dx;
-  vec3 dgdy = (g(x+dx*j)-g(x)) / dx;
-  vec3 dgdz = (g(x+dx*k)-g(x)) / dx;
+vec3 curl(vec3 gx, vec3 gxdxi, vec3 gxdxj, vec3 gxdxk){
+  vec3 dgdx = (gxdxi-gx) / dx;
+  vec3 dgdy = (gxdxj-gx) / dx;
+  vec3 dgdz = (gxdxk-gx) / dx;
   return 
     vec3(
         dgdy.z - dgdz.y,
         dgdz.x - dgdx.z,
         dgdx.y - dgdy.x
       );
+}
+vec3 f(vec3 x){
+  return curl(g(x), g(x+dx*i), g(x+dx*j), g(x+dx*k));
 }
     </script>
     <script type="x-shader/x-scalar" id="scalar-laplacian-demo" data-field-type="scalar">
