@@ -303,11 +303,14 @@ const vec3 k = vec3(0,0,1);
 float g(vec3 x){
   return cos(x.x) * cos(x.y) * cos(x.z);
 }
-vec3 f(vec3 x){
+vec3 grad(float gx, float gxdxi, float gxdxj, float gxdxk){
   return vec3(
-    g(x+dx*i)-g(x),
-    g(x+dx*j)-g(x),
-    g(x+dx*k)-g(x)) / dx;
+    gxdxi-gx,
+    gxdxj-gx,
+    gxdxk-gx) / dx;
+}
+vec3 f(vec3 x){
+  return grad(g(x), g(x+dx*i), g(x+dx*j), g(x+dx*k));
 }
     </script>
     <script type="x-shader/x-scalar" id="divergence-demo" data-field-type="scalar">
