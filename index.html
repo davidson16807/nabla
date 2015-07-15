@@ -165,6 +165,10 @@
 					Compile
 					<span class="hint">ctrl+s</span>
 				</button>
+				<button id="get-link">
+					<img src="icons/link-512px.svg" height="12em">
+					Link
+				</button>
 				<select id="demo">
 					<option value="scalar-field-demo">scalar field demo</option>
 					<option value="vector-field-demo">vector field demo</option>
@@ -175,6 +179,7 @@
 					<option value="vector-laplacian-demo">vector laplacian demo</option>
 					<option value="geometry-demo">geometry demo</option>
 				</select>
+				<input id="link" class="hidden" style="width:100%"></input>
 			</div>
 		</div>
 		</div>
@@ -717,6 +722,22 @@ float f(vec3 x){
 		});
 		$('#compile').click(function(event) {
 			compile();
+		});
+		$('#get-link').click(function(event) {
+			var editor;
+			var field_type_value = $('#field-type').val();
+			if (field_type_value == "vector") {
+				editor = vectorFieldEditor;
+			} else if (field_type_value == "scalar") {
+				editor = scalarFieldEditor;
+			};
+			var link = "http://davidson16807.github.io/nabla/?glsl=" + encodeURI(editor.getValue().replace(/\s+/g, ' '))
+			$('#link')
+				.val(link)
+				.focus(function() {
+					this.select();
+				})
+				.show();
 		});
 	</script>
 </body>
