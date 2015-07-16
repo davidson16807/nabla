@@ -178,6 +178,7 @@
 					<option value="scalar-laplacian-demo">scalar laplacian demo</option>
 					<option value="vector-laplacian-demo">vector laplacian demo</option>
 					<option value="geometry-demo">geometry demo</option>
+					<option value="electric-field-demo">electric dipole field</option>
 				</select>
 				<input id="link" class="hidden" style="width:100%"></input>
 			</div>
@@ -197,11 +198,14 @@
 		void main() {
 			vPosition = position * domain_width/2. + domain_center.xyz;
 			vec3 vector = f(vPosition);
+        	float magnitude = sqrt(dot(vector,vector));
+        	float display_value = clamp(magnitude, range.x, range.y)/(range.y-range.x);
+        	vec3 display_vector = normalize(vector) * display_value;
 			gl_Position = 
 				projectionMatrix * 
 				modelViewMatrix * 
 				vec4( is_vector > 0.? 
-					position + vector / float(resolution) : 
+					position + display_vector / float(resolution) : 
 					position,      1.0 );
 		}
     </script>
@@ -229,7 +233,7 @@
         	vec3 vector = f(vPosition);
         	float magnitude = sqrt(dot(vector,vector));
         	float display_value = clamp(magnitude, range.x, range.y)/(range.y-range.x);
-            gl_FragColor = vec4(heat(display_value), 1./display_value);
+            gl_FragColor = vec4(heat(display_value), abs(display_value));
         }
     </script>
     <script type="x-shader/x-vertex" id="scalarVertexShader">
@@ -246,7 +250,7 @@
 			float scalar = f(vPosition);
         	float display_value = clamp(scalar, range.x, range.y)/(range.y-range.x);
 			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-			gl_PointSize = 10.*display_value; 
+			gl_PointSize = 10.*abs(display_value); 
 		}
     </script>
     <script type="x-shader/x-fragment" id="scalarFragmentShader">
@@ -272,7 +276,7 @@
         void main() {
         	float scalar = f(vPosition);
         	float display_value = clamp(scalar, range.x, range.y)/(range.y-range.x);
-            gl_FragColor = vec4(heat(display_value), 1./display_value);
+            gl_FragColor = vec4(heat(display_value), abs(display_value));
         }
     </script> 
 	
@@ -459,6 +463,37 @@ float f(vec3 x){
 	  circle(x - vec3(0,0,0), 1.) +
 	  cylinder(x + vec3(2,2,2), 1., 1.5);
 }
+    </script>
+    <script type="x-shader/x-scalar" id="electric-field-demo" data-field-type="scalar">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+#define GRADIENT(f) vec3( f(x+dx*i)-f(x), f(x+dx*j)-f(x), f(x+dx*k)-f(x)) / dx
+#define DIVERGENCE(f) ((f(x+dx*i)-f(x)).x + (f(x+dx*j)-f(x)).y + (f(x+dx*k)-f(x)).z) / dx
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+const float pi = 3.14159265;
+float particle(vec3 x, float q){
+  return q / (4.*pi*sqrt(dot(x,x)));
+}
+float electric_potential(vec3 x){
+  return 
+    particle(x+vec3(1,0,0), 10.) + 
+    particle(x-vec3(1,0,0), -10.);
+}
+vec3 electric_field(vec3 x){
+  return GRADIENT(electric_potential);
+}
+float electric_flux(vec3 x){
+  return DIVERGENCE(electric_field);
+}
+float f(vec3 x){
+  return 
+    electric_potential(x);
+}
+    
     </script>
 	<script type="text/javascript">
 		function field_type (value) {
