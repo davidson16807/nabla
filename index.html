@@ -179,6 +179,7 @@
 					<option value="vector-laplacian-demo">vector laplacian demo</option>
 					<option value="geometry-demo">geometry demo</option>
 					<option value="electric-field-demo">electric dipole field</option>
+					<option value="earth-moon-system">earth-moon system</option>
 				</select>
 				<input id="link" class="hidden" style="width:100%"></input>
 			</div>
@@ -514,7 +515,7 @@ float gravitational_potential(vec3 x){
     body(x+vec3(3.844e8,0,0), 7.347e22 * 20.);  // Moon
 }
 float gravitational_potential_view(vec3 x){
-  return gravitational_potential(x * 2e7)/1e7;
+  return gravitational_potential(x * 1e8)/1e7;
 }
 vec3 gravitational_field_view(vec3 x){
   return GRADIENT(gravitational_potential_view);
