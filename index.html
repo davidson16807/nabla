@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
 	<head>
-		<title>Field Calculator</title>
+		<title>Nabla - a graphing calculator for fields</title>
 
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -19,6 +19,7 @@
 		<script src="vendor/three.js/Three.js"></script>
 		<script src="vendor/three.js/Detector.js"></script>
 		<script src="vendor/three.js/OrbitControls.js"></script>
+		<script src="vendor/three.js/RenderPass.js"></script>
 
 		<script src="vendor/threex/THREEx.screenshot.js"></script>
 		<script src="vendor/threex/THREEx.WindowResize.js"></script>
@@ -186,6 +187,13 @@
 		</div>
 		</div>
 	</div>
+	<script type="x-shader/x-vertex" id="passThroughVertexShader">
+		varying vec2 vUv;
+		void main() {
+		    vUv = uv;
+		    gl_Position = vec4( 2.*uv-1., 0, 1.0 );
+		}
+	</script>
     <script type="x-shader/x-vertex" id="vectorVertexShader">
 		varying vec3 vPosition;
 		uniform int resolution;
@@ -529,7 +537,7 @@ float f(vec3 x, float t){
     </script>
 	<script type="text/javascript">
 		function field_type (value) {
-			scene.remove(field);
+			render_pass.scene.remove(field);
 			$('#scalarFieldEditorContainer').hide();
 			$('#vectorFieldEditorContainer').hide();
 			$('#field-type').val(value);
@@ -541,7 +549,7 @@ float f(vec3 x, float t){
 				$('#vectorFieldEditorContainer').show();
 			}
 
-			scene.add(field);
+			render_pass.scene.add(field);
 		}
 		function compile () {
 			var field_type = $('#field-type').val();
@@ -585,8 +593,8 @@ float f(vec3 x, float t){
 		scalarFieldEditor.setOption("theme", 'monokai');
 
 		$('#vectorFieldEditorContainer').hide();
-		var scene, renderer, composer, clock;
-		var camera, cameraControl;
+		var renderer, composer, clock;
+		var cameraControl;
 	    var image = document.createElement( 'img' );
 
 		var resolution = 5;
@@ -671,27 +679,29 @@ float f(vec3 x, float t){
 			$("#container").get(0).appendChild(renderer.domElement);
 
 			// create a scene
-			scene = new THREE.Scene();
+			render_pass = new THREE.RenderPass(
+				new THREE.Scene(), 
+				new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000 )
+			);
 
 			// put a camera in the scene
-			camera	= new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000 );
-			camera.position.set(0, 0, 5);
-			scene.add(camera);
+			render_pass.camera.position.set(0, 0, 5);
+			render_pass.scene.add(render_pass.camera);
 
 			// create a camera contol
-			cameraControls	= new THREE.OrbitControls( camera, $("#container").get(0) );
+			cameraControls	= new THREE.OrbitControls( render_pass.camera, $("#container").get(0) );
 
 			// transparently support window resize
-			THREEx.WindowResize.bind(renderer, camera);
+			THREEx.WindowResize.bind(renderer, render_pass.camera);
 			// allow 'p' to make screenshot
 			// THREEx.Screenshot.bindKey(renderer);
 
 			// here you add your objects
 			// - you will most likely replace this part by your own
 			var light	= new THREE.AmbientLight(  0xffffff );
-			scene.add( light );
-			scene.add( scalarField );
-			// scene.add( vectorField );
+			render_pass.scene.add( light );
+			render_pass.scene.add( scalarField );
+			// render_pass.scene.add( vectorField );
 		}
 
 		// animation loop
@@ -708,8 +718,8 @@ float f(vec3 x, float t){
 			// update camera controls
 			cameraControls.update();
 
-			// actually render the scene
-			renderer.render( scene, camera );
+			// actually render the render_pass.scene
+			renderer.render( render_pass.scene, render_pass.camera );
 
 			if(Paused){
 				return;
