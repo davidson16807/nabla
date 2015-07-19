@@ -593,15 +593,18 @@ float f(vec3 x, float t){
 		scalarFieldEditor.setOption("theme", 'monokai');
 
 		$('#vectorFieldEditorContainer').hide();
-		var renderer, composer, clock;
-		var cameraControl;
+		var renderer, composer, clock, field; 
+		var scalarGeometry, vectorGeometry, scalarShader, vectorShader, scalarField, vectorField;
+		var data_pass, render_pass, cameraControl;
 	    var image = document.createElement( 'img' );
 
 		var resolution = 5;
 
-		var scalarGeometry	= new THREE.Geometry();
-		var vectorGeometry	= new THREE.Geometry();
-	    var scalarShader = new THREE.ShaderMaterial({
+		// vectorField.visible = false;
+		var Paused = true;
+		var Time = 0;
+
+	    scalarShader = new THREE.ShaderMaterial({
 	        vertexShader: $('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue()),
 	        fragmentShader: $('#scalarFragmentShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue()),
 	        attributes: {
@@ -614,9 +617,8 @@ float f(vec3 x, float t){
 	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
 	        }
 	    });
-	    scalarShader.vertex_template = $('#scalarVertexShader').text();
-	    scalarShader.fragment_template = $('#scalarFragmentShader').text();
-	    var vectorShader = new THREE.ShaderMaterial({
+
+	    vectorShader = new THREE.ShaderMaterial({
 	        vertexShader: $('#vectorVertexShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue()),
 	        fragmentShader: $('#vectorFragmentShader').text().replace("//USER_INPUT_GOES_HERE", vectorFieldEditor.getValue()),
 	        attributes: {
@@ -630,32 +632,7 @@ float f(vec3 x, float t){
 	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
 	        }
 	    });
-	    vectorShader.vertex_template = $('#vectorVertexShader').text();
-	    vectorShader.fragment_template = $('#vectorFragmentShader').text();
-
-		var resolution = 25;
-		for (var i = 0; i <= resolution; i++) {
-			for (var j = 0; j <= resolution; j++) {
-				for (var k = 0; k <= resolution; k++) {
-					for(var l = 0; l<2; l++){ //l is used to represent vectors when mesh == THREE.Line
-						scalarGeometry.vertices.push(new THREE.Vector3((2*i/resolution-1),(2*j/resolution-1),(2*k/resolution-1)));
-						vectorGeometry.vertices.push(new THREE.Vector3((2*i/resolution-1),(2*j/resolution-1),(2*k/resolution-1)));
-						vectorShader.attributes.is_vector.value.push(2*l-1); 
-						//.value[i*resolution*resolution + j*resolution + k*2 +l] = 
-					} 
-				}
-			}
-		};	
-		vectorShader.attributes.is_vector.needsUpdate = true;
-
-		var scalarField = new THREE.ParticleSystem(scalarGeometry, scalarShader);
-		var vectorField	= new THREE.Line( vectorGeometry, vectorShader, THREE.LinePieces);
-		// vectorField.visible = false;
-		var field = scalarField;
-		var MegaYearsPerSecond = 20;
-		var Paused = true;
-		var Time = 0;
-
+		    
 		if( !init() ){
 			animate();
 		}
@@ -678,15 +655,46 @@ float f(vec3 x, float t){
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			$("#container").get(0).appendChild(renderer.domElement);
 
-			// create a scene
+			// render pass that calculates user input and stores the result in a texture 
+			data_pass = new THREE.RenderPass(
+				new THREE.Scene(), 
+				new THREE.PerspectiveCamera()
+			);
+
+			// render pass that takes result from texture file and displays it on the screen
 			render_pass = new THREE.RenderPass(
 				new THREE.Scene(), 
 				new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 1, 10000 )
 			);
-
-			// put a camera in the scene
 			render_pass.camera.position.set(0, 0, 5);
 			render_pass.scene.add(render_pass.camera);
+
+			
+			scalarGeometry	= new THREE.Geometry();
+			vectorGeometry	= new THREE.Geometry();
+			var resolution = 25;
+			for (var i = 0; i <= resolution; i++) {
+				for (var j = 0; j <= resolution; j++) {
+					for (var k = 0; k <= resolution; k++) {
+						for(var l = 0; l<2; l++){ //l is used to represent vectors when mesh == THREE.Line
+							scalarGeometry.vertices.push(new THREE.Vector3((2*i/resolution-1),(2*j/resolution-1),(2*k/resolution-1)));
+							vectorGeometry.vertices.push(new THREE.Vector3((2*i/resolution-1),(2*j/resolution-1),(2*k/resolution-1)));
+							vectorShader.attributes.is_vector.value.push(2*l-1); 
+							//.value[i*resolution*resolution + j*resolution + k*2 +l] = 
+						} 
+					}
+				}
+			};	
+			scalarShader.vertex_template = $('#scalarVertexShader').text();
+			scalarShader.fragment_template = $('#scalarFragmentShader').text();
+
+			vectorShader.vertex_template = $('#vectorVertexShader').text();
+			vectorShader.fragment_template = $('#vectorFragmentShader').text();
+			vectorShader.attributes.is_vector.needsUpdate = true;
+
+			scalarField = new THREE.ParticleSystem(scalarGeometry, scalarShader);
+			vectorField	= new THREE.Line( vectorGeometry, vectorShader, THREE.LinePieces);
+			field = scalarField;
 
 			// create a camera contol
 			cameraControls	= new THREE.OrbitControls( render_pass.camera, $("#container").get(0) );
@@ -790,9 +798,9 @@ float f(vec3 x, float t){
 			$(asciimath_selector).show();
 			var editor;
 			if (field_type_value == "vector") {
-				editor = vectorFieldEditor
+				editor = vectorFieldEditor;
 			} else if (field_type_value == "scalar") {
-				editor = scalarFieldEditor
+				editor = scalarFieldEditor;
 			};
 			editor.setValue($(demo_selector).text());
 			compile();
