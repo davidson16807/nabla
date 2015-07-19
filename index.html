@@ -198,7 +198,7 @@
 		
 		void main() {
 			vPosition = position * domain_width/2. + domain_center.xyz;
-			vec3 vector = f(vPosition);
+			vec3 vector = f(vPosition, 0.);
         	float magnitude = sqrt(dot(vector,vector));
         	float display_value = clamp(magnitude, range.x, range.y)/(range.y-range.x);
         	vec3 display_vector = normalize(vector) * display_value;
@@ -231,7 +231,7 @@
         //USER_INPUT_GOES_HERE
 
         void main() {
-        	vec3 vector = f(vPosition);
+        	vec3 vector = f(vPosition, 0.);
         	float magnitude = sqrt(dot(vector,vector));
         	float display_value = clamp(magnitude, range.x, range.y)/(range.y-range.x);
             gl_FragColor = vec4(heat(display_value), abs(display_value));
@@ -248,7 +248,7 @@
 
 		void main() {
 			vPosition = position * domain_width/2. + domain_center.xyz;
-			float scalar = f(vPosition);
+			float scalar = f(vPosition, 0.);
         	float display_value = clamp(scalar, range.x, range.y)/(range.y-range.x);
 			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 			gl_PointSize = 10.*abs(display_value); 
@@ -275,7 +275,7 @@
         //USER_INPUT_GOES_HERE
 
         void main() {
-        	float scalar = f(vPosition);
+        	float scalar = f(vPosition, 0.);
         	float display_value = clamp(scalar, range.x, range.y)/(range.y-range.x);
             gl_FragColor = vec4(heat(display_value), abs(display_value));
         }
@@ -286,7 +286,7 @@
 // Write your own code, here. 
 // Code must be written in glsl.
 // Hit "compile" to update the view.
-float f(vec3 x){
+float f(vec3 x, float t){
   return cos(x.x) * cos(x.y) * cos(x.z);
 }
 	</script>
@@ -294,7 +294,7 @@ float f(vec3 x){
 // Write your own code, here. 
 // Code must be written in glsl.
 // Hit "compile" to update the view.
-vec3 f(vec3 x){
+vec3 f(vec3 x, float t){
   return vec3(
     cos(x.x) * cos(x.y) * cos(x.z),
     sin(x.x) * sin(x.y) * sin(x.z),
@@ -314,7 +314,7 @@ const vec3 k = vec3(0,0,1);
 float g(vec3 x){
   return cos(x.x) * cos(x.y) * cos(x.z);
 }
-vec3 f(vec3 x){
+vec3 f(vec3 x, float t){
   return GRADIENT(g);
 }
     </script>
@@ -334,7 +334,7 @@ vec3 g(vec3 x){
     cos(x.x) * cos(x.y) * cos(x.z)
   );
 }
-float f(vec3 x){
+float f(vec3 x, float t){
   return DIVERGENCE(g);
 }
     </script>
@@ -365,7 +365,7 @@ vec3 g(vec3 x){
     cos(x.x) * cos(x.y) * cos(x.z)
   );
 }
-vec3 f(vec3 x){
+vec3 f(vec3 x, float t){
   return CURL(g);
 }
     </script>
@@ -388,7 +388,7 @@ vec3 grad_g(vec3 x){
 float laplace_g(vec3 x){
   return DIVERGENCE(grad_g);
 }
-float f(vec3 x){
+float f(vec3 x, float t){
   return laplace_g(x);
 }
     </script>
@@ -415,7 +415,7 @@ float div_g(vec3 x){
 vec3 laplace_g(vec3 x){
   return GRADIENT(div_g);
 }
-vec3 f(vec3 x){
+vec3 f(vec3 x, float t){
   return laplace_g(x);
 }
     </script>
@@ -458,7 +458,7 @@ float cylinder(vec3 x, float r, float h){
     H((h / 2.) - sqrt(x.z*x.z)) * 
     H(r*r - dot(x.xy, x.xy));
 }
-float f(vec3 x){
+float f(vec3 x, float t){
   return
 	  square(x - vec3(2,2,2), vec3(2,2,2)) + 
 	  circle(x - vec3(0,0,0), 1.) +
@@ -490,7 +490,7 @@ vec3 electric_field(vec3 x){
 float electric_flux(vec3 x){
   return DIVERGENCE(electric_field);
 }
-vec3 f(vec3 x){
+vec3 f(vec3 x, float t){
   return 
     electric_field(x);
 }
@@ -523,7 +523,7 @@ vec3 gravitational_field_view(vec3 x){
 float gravitational_flux_view(vec3 x){
   return DIVERGENCE(gravitational_field_view);
 }
-float f(vec3 x){
+float f(vec3 x, float t){
   return gravitational_potential_view(x);
 }
     </script>
