@@ -194,12 +194,25 @@
 		    gl_Position = vec4( 2.*uv-1., 0, 1.0 );
 		}
 	</script>
+	<script type="x-shader/x-fragment" id="dataFragmentShader">
+
+		varying vec2 vUv;
+		uniform sampler2D prev;
+
+		void main() {
+			gl_FragColor = vec4(vUv, 0, 1);
+		    // vec4 Uin = texture2D(prev, vUv);
+		    // vec4 Uin1 = texture2D(prev, vUv-vec2(dx,0));
+		    // gl_FragColor = Uin - c*dt/dx*(Uin - Uin1);
+		}
+	</script>
     <script type="x-shader/x-vertex" id="vectorVertexShader">
 		varying vec3 vPosition;
 		uniform int resolution;
 		uniform vec4 domain_center;
 		uniform float domain_width;
 		uniform vec2 range;
+		uniform sampler2D prev;
 		attribute float is_vector; // positive=true, negative=false
 
 		//USER_INPUT_GOES_HERE
@@ -224,6 +237,7 @@
         varying vec3 vPosition;
 		uniform int resolution;
 		uniform vec2 range;
+		uniform sampler2D prev;
 
         //converts float from 0-1 to a heat map visualtion
         //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
@@ -251,6 +265,7 @@
 		uniform vec4 domain_center;
 		uniform float domain_width;
 		uniform vec2 range;
+		uniform sampler2D prev;
 
 		//USER_INPUT_GOES_HERE
 
@@ -268,6 +283,7 @@
         varying vec3 vPosition;
 		uniform int resolution;
 		uniform vec2 range;
+		uniform sampler2D prev;
 
         //converts float from 0-1 to a heat map visualtion
         //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
@@ -594,8 +610,12 @@ float f(vec3 x, float t){
 
 		$('#vectorFieldEditorContainer').hide();
 		var renderer, composer, clock, field; 
+		
+		var render_pass, cameraControl;
 		var scalarGeometry, vectorGeometry, scalarShader, vectorShader, scalarField, vectorField;
-		var data_pass, render_pass, cameraControl;
+
+		var data_pass;
+		var swap, data_pass_target1, data_pass_target2, data_pass_material;
 	    var image = document.createElement( 'img' );
 
 		var resolution = 5;
@@ -614,7 +634,8 @@ float f(vec3 x, float t){
 	        	center: { type: 'v4', value: new THREE.Vector4( 0,0,0,0 ) },
 	        	domain_width: { type: 'f', value: 8 },
 	        	domain_center: { type: 'v4', value: new THREE.Vector4(0,0,0,0) },
-	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
+	        	range: { type: 'v2', value: new THREE.Vector2(0,1) },
+	        	prev: { type: 't', value: data_pass_target2 }
 	        }
 	    });
 
@@ -629,7 +650,8 @@ float f(vec3 x, float t){
 	        	center: { type: 'v4', value: new THREE.Vector4( 0,0,0,0 ) },
 	        	domain_width: { type: 'f', value: 8 },
 	        	domain_center: { type: 'v4', value: new THREE.Vector4(0,0,0,0) },
-	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
+	        	range: { type: 'v2', value: new THREE.Vector2(0,1) },
+	        	prev: { type: 't', value: data_pass_target2 }
 	        }
 	    });
 		    
@@ -646,6 +668,7 @@ float f(vec3 x, float t){
 					antialias		: true,	// to get smoother output
 					preserveDrawingBuffer	: true	// to allow screenshot
 				});
+				renderer.setSize(256, 256);
 				renderer.setClearColor( 0x000000 );
 			}else{
 				Detector.addGetWebGLMessage();
@@ -660,7 +683,32 @@ float f(vec3 x, float t){
 				new THREE.Scene(), 
 				new THREE.PerspectiveCamera()
 			);
-
+			swap = true;
+			data_pass_target1 = new THREE.WebGLRenderTarget(256, 256, 
+				{ 
+					minFilter: THREE.LinearFilter, 
+					magFilter: THREE.NearestFilter, 
+					format: THREE.RGBAFormat 
+				});
+			data_pass_target2 = new THREE.WebGLRenderTarget(256, 256, 
+				{ 
+					minFilter: THREE.LinearFilter,
+					magFilter: THREE.NearestFilter,
+					format: THREE.RGBAFormat 
+				});
+			data_pass_material = new THREE.ShaderMaterial({
+			    vertexShader: 
+			    document.getElementById( 'passThroughVertexShader' ).textContent,
+			    fragmentShader: 
+			    document.getElementById( 'dataFragmentShader' ).textContent,
+			    uniforms: {
+			        prev: {
+			            type: "t", value: new THREE.Texture(new Image())
+			        }
+			    }
+			});
+			data_pass.scene.add(new THREE.Mesh(new THREE.PlaneGeometry(1,1), data_pass_material));
+			
 			// render pass that takes result from texture file and displays it on the screen
 			render_pass = new THREE.RenderPass(
 				new THREE.Scene(), 
@@ -725,6 +773,18 @@ float f(vec3 x, float t){
 
 			// update camera controls
 			cameraControls.update();
+
+			// calculate user input 
+			// data_renderer.render(data_pass.scene, data_pass.camera, data_pass_target1, false);
+			renderer.render( data_pass.scene, data_pass.camera, data_pass_target1, false);
+			if(swap){
+				var temp = data_pass_target2;
+			    data_pass_target2 = data_pass_target1;
+			    data_pass_target1 = temp;
+			    data_pass_material.uniforms.prev.value = data_pass_target2;
+			    data_pass_material.uniforms.prev.needsUpdate = true;
+
+			}
 
 			// actually render the render_pass.scene
 			renderer.render( render_pass.scene, render_pass.camera );
