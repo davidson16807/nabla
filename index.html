@@ -188,7 +188,9 @@
 		</div>
 	</div>
 	<script type="x-shader/x-vertex" id="baseShader">
+		uniform sampler2D prev;
 		const vec2 fileDimensions = vec2(256, 256);
+
 		vec2 _indexToFileXY(int index){
 			return vec2(
 				floor(float(index) / (fileDimensions.x)), 
@@ -214,7 +216,7 @@
 	</script>
 	<script type="x-shader/x-fragment" id="dataFragmentShader">
 		varying vec2 vUv;
-		uniform sampler2D prev;
+		//BASE_SHADER_GOES_HERE
 
 		void main() {
 			gl_FragColor = vec4(vUv, 0, 1);
@@ -229,7 +231,6 @@
 		uniform vec4 domain_center;
 		uniform float domain_width;
 		uniform vec2 range;
-		uniform sampler2D prev;
 		attribute float is_vector; // positive=true, negative=false
 
 		//BASE_SHADER_GOES_HERE
@@ -256,7 +257,6 @@
         varying vec3 vPosition;
 		uniform int resolution;
 		uniform vec2 range;
-		uniform sampler2D prev;
 
         //converts float from 0-1 to a heat map visualtion
         //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
@@ -286,7 +286,6 @@
 		uniform vec4 domain_center;
 		uniform float domain_width;
 		uniform vec2 range;
-		uniform sampler2D prev;
 
 		//BASE_SHADER_GOES_HERE
 
@@ -306,7 +305,6 @@
         varying vec3 vPosition;
 		uniform int resolution;
 		uniform vec2 range;
-		uniform sampler2D prev;
 
         //converts float from 0-1 to a heat map visualtion
         //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
