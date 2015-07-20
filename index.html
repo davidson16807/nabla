@@ -187,6 +187,24 @@
 		</div>
 		</div>
 	</div>
+	<script type="x-shader/x-vertex" id="baseShader">
+		const vec2 fileDimensions = vec2(256, 256);
+		vec2 _indexToFileXY(int index){
+			return vec2(
+				floor(float(index) / (fileDimensions.x)), 
+				mod(float(index), (fileDimensions.x)));
+		}
+		vec2 _fileXyToFileUv(vec2 fileXy){
+			vec2 flipped = (fileXy + 0.5) / fileDimensions;
+			return vec2(flipped.y, 1.-flipped.x );
+		}
+		vec4 _getPrev(int index){
+			vec2 fileUv = 
+				_fileXyToFileUv(
+				_indexToFileXY(index));
+			return texture2D( prev, fileUv);
+		}
+	</script>
 	<script type="x-shader/x-vertex" id="passThroughVertexShader">
 		varying vec2 vUv;
 		void main() {
@@ -195,7 +213,6 @@
 		}
 	</script>
 	<script type="x-shader/x-fragment" id="dataFragmentShader">
-
 		varying vec2 vUv;
 		uniform sampler2D prev;
 
@@ -214,6 +231,8 @@
 		uniform vec2 range;
 		uniform sampler2D prev;
 		attribute float is_vector; // positive=true, negative=false
+
+		//BASE_SHADER_GOES_HERE
 
 		//USER_INPUT_GOES_HERE
 		
@@ -250,6 +269,8 @@
         	);
         }
 
+		//BASE_SHADER_GOES_HERE
+
         //USER_INPUT_GOES_HERE
 
         void main() {
@@ -266,6 +287,8 @@
 		uniform float domain_width;
 		uniform vec2 range;
 		uniform sampler2D prev;
+
+		//BASE_SHADER_GOES_HERE
 
 		//USER_INPUT_GOES_HERE
 
@@ -295,6 +318,8 @@
         		smoothstep(0.4, 0.6, value)
         	);
         }
+
+		//BASE_SHADER_GOES_HERE
 
         //USER_INPUT_GOES_HERE
 
@@ -576,8 +601,12 @@ float f(vec3 x, float t){
 			};
 		}
 		THREE.ShaderMaterial.prototype.compile = function(user_input) {
-			this.vertexShader = this.vertex_template.replace("//USER_INPUT_GOES_HERE", user_input);
-			this.fragmentShader = this.fragment_template.replace("//USER_INPUT_GOES_HERE", user_input);
+			this.vertexShader = this.vertex_template
+				.replace("//BASE_SHADER_GOES_HERE", $('#baseShader').text())
+				.replace("//USER_INPUT_GOES_HERE", user_input);
+			this.fragmentShader = this.fragment_template
+				.replace("//BASE_SHADER_GOES_HERE", $('#baseShader').text())
+				.replace("//USER_INPUT_GOES_HERE", user_input);
 			this.needsUpdate = true;
 		}
 		var vectorFieldEditor = CodeMirror.fromTextArea($('#vectorFieldEditor')[0], {
@@ -698,9 +727,11 @@ float f(vec3 x, float t){
 				});
 			data_pass_material = new THREE.ShaderMaterial({
 			    vertexShader: 
-			    document.getElementById( 'passThroughVertexShader' ).textContent,
+			    $( '#passThroughVertexShader' ).text(),
 			    fragmentShader: 
-			    document.getElementById( 'dataFragmentShader' ).textContent,
+			    $( '#dataFragmentShader' )
+			    	.text()
+			    	.replace("//BASE_SHADER_GOES_HERE", $('#baseShader').text()),
 			    uniforms: {
 			        prev: {
 			            type: "t", value: new THREE.Texture(new Image())
