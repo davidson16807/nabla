@@ -798,6 +798,26 @@ float f(vec3 x){
 		$('#compile').click(function(event) {
 			compile();
 		});
+		$(function () {
+			var querystring = [];
+			for(var i = 0, 
+				hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&'); 
+				i < hashes.length; i++)
+			{
+			    var hash = hashes[i].split('=');
+			    querystring.push(hash[0]);
+			    querystring[hash[0]] = hash[1];
+			}
+
+			if (querystring['field-type'] === 'vector'){
+				editor = vectorFieldEditor;
+			} else if (querystring['field-type'] === 'scalar') {
+				editor = scalarFieldEditor;
+			}
+			field_type(querystring['field-type']);
+			editor.setValue(decodeURI(querystring['glsl']));
+			compile();
+		})
 		$('#get-link').click(function(event) {
 			var editor;
 			var field_type_value = $('#field-type').val();
@@ -806,7 +826,10 @@ float f(vec3 x){
 			} else if (field_type_value == "scalar") {
 				editor = scalarFieldEditor;
 			};
-			var link = "http://davidson16807.github.io/nabla/?glsl=" + encodeURI(editor.getValue().replace(/\s+/g, ' '))
+			var link = "http://davidson16807.github.io/nabla/?" +
+				"field-type=" + $('#field-type').val() + "&" + 
+				"glsl=" + encodeURI(editor.getValue().replace(/\s+/g, ' ') 
+			);
 			$('#link')
 				.val(link)
 				.focus(function() {
