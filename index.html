@@ -809,14 +809,16 @@ float f(vec3 x){
 			    querystring[hash[0]] = hash[1];
 			}
 
-			if (querystring['field-type'] === 'vector'){
-				editor = vectorFieldEditor;
-			} else if (querystring['field-type'] === 'scalar') {
-				editor = scalarFieldEditor;
+			if(querystring['glsl'] && querystring['field-type']){
+				if (querystring['field-type'] === 'vector'){
+					editor = vectorFieldEditor;
+				} else if (querystring['field-type'] === 'scalar') {
+					editor = scalarFieldEditor;
+				}
+				field_type(querystring['field-type']);
+				editor.setValue(decodeURIComponent(querystring['glsl']));
+				compile();
 			}
-			field_type(querystring['field-type']);
-			editor.setValue(decodeURI(querystring['glsl']));
-			compile();
 		})
 		$('#get-link').click(function(event) {
 			var editor;
@@ -826,10 +828,13 @@ float f(vec3 x){
 			} else if (field_type_value == "scalar") {
 				editor = scalarFieldEditor;
 			};
-			var link = "http://davidson16807.github.io/nabla/?" +
-				"field-type=" + $('#field-type').val() + "&" + 
-				"glsl=" + encodeURI(editor.getValue().replace(/\s+/g, ' ') 
-			);
+			var glsl = editor.getValue()
+				.replace(/[\t ]+/g, ' ')
+				.replace(/\n+/g, '\n')
+				.replace(/\n | \n/g, '\n');
+			var link = "http://davidson16807.github.io/nabla/" +
+				"?field-type=" + $('#field-type').val() + 
+				"&glsl=" + encodeURIComponent(glsl);
 			$('#link')
 				.val(link)
 				.focus(function() {
