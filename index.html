@@ -405,7 +405,7 @@ float f(vec3 x){
 // Code must be written in glsl.
 // Hit "compile" to update the view.
 #define GRADIENT(f) vec3( f(x+dx*i)-f(x), f(x+dx*j)-f(x), f(x+dx*k)-f(x)) / dx
-#define VECTOR_GRADIENT(f) mat3( f(x+dx*i).x-f(x).x, f(x+dx*i).x-f(x).y, f(x+dx*i).x-f(x).z,    f(x+dx*j).x-f(x).x, f(x+dx*j).x-f(x).y, f(x+dx*j).x-f(x).z,    f(x+dx*k).x-f(x).x, f(x+dx*k).x-f(x).y, f(x+dx*k).x-f(x).z  ) / dx
+#define VECTOR_GRADIENT(f) mat3( f(x+dx*i).x-f(x).x, f(x+dx*i).y-f(x).y, f(x+dx*i).z-f(x).z,    f(x+dx*j).x-f(x).x, f(x+dx*j).y-f(x).y, f(x+dx*j).z-f(x).z,     f(x+dx*k).x-f(x).x, f(x+dx*k).y-f(x).y, f(x+dx*k).z-f(x).z  ) / dx
 #define DIVERGENCE(f) ((f(x+dx*i)-f(x)).x + (f(x+dx*j)-f(x)).y + (f(x+dx*k)-f(x)).z) / dx
 const float dx = 0.001;
 const vec3 i = vec3(1,0,0);
