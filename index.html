@@ -117,14 +117,20 @@
 			     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
 			<p>`vec(f) = nabla xx vec(g)`</p>
 		</div>
+		<div class="hidden scalar-laplacian-demo math">
+			<p>`f = nabla * nabla cos(x_x) cos(x_y) cos(x_z)`</p>
+		</div>
 		<div class="hidden vector-laplacian-demo math">
 			<p>`vec(g) = [[cos(x_x)cos(x_y)cos(x_z)],
 			     [sin(x_x)sin(x_y)sin(x_z)],
 			     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
-			<p>`vec(f) = nabla ( nabla * vec(g) )`</p>
+			<p>`vec(f) = nabla^2 vec(g) = nabla * ( nabla vec(g) ) = nabla ( nabla * vec(g)) - nabla xx ( nabla xx vec(g) )`</p>
 		</div>
-		<div class="hidden scalar-laplacian-demo math">
-			<p>`f = nabla * nabla cos(x_x) cos(x_y) cos(x_z)`</p>
+		<div class="hidden grad-div-demo math">
+			<p>`vec(g) = [[cos(x_x)cos(x_y)cos(x_z)],
+			     [sin(x_x)sin(x_y)sin(x_z)],
+			     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
+			<p>`vec(f) = nabla ( nabla * vec(g) )`</p>
 		</div>
 		<div class="hidden geometry-demo math">
 			<p>`H(x) = {(1, if x > 0), 
@@ -185,6 +191,7 @@
 					<option value="curl-demo">curl demo</option>
 					<option value="scalar-laplacian-demo">scalar laplacian demo</option>
 					<option value="vector-laplacian-demo">vector laplacian demo</option>
+					<option value="grad-div-demo">gradient of divergence demo</option>
 					<option value="geometry-demo">geometry demo</option>
 					<option value="electric-field-demo">electric dipole field</option>
 					<option value="earth-moon-system">earth-moon system</option>
@@ -407,6 +414,58 @@ float f(vec3 x){
 #define GRADIENT(f) vec3( f(x+dx*i)-f(x), f(x+dx*j)-f(x), f(x+dx*k)-f(x)) / dx
 #define VECTOR_GRADIENT(f) mat3( f(x+dx*i).x-f(x).x, f(x+dx*i).y-f(x).y, f(x+dx*i).z-f(x).z,    f(x+dx*j).x-f(x).x, f(x+dx*j).y-f(x).y, f(x+dx*j).z-f(x).z,     f(x+dx*k).x-f(x).x, f(x+dx*k).y-f(x).y, f(x+dx*k).z-f(x).z  ) / dx
 #define DIVERGENCE(f) ((f(x+dx*i)-f(x)).x + (f(x+dx*j)-f(x)).y + (f(x+dx*k)-f(x)).z) / dx
+#define MATRIX_DIVERGENCE(f) vec3(	(f(x+dx*i)[0]-f(x)[0]).x + (f(x+dx*j)[1]-f(x)[1]).x + (f(x+dx*k)[2]-f(x)[2]).x,	(f(x+dx*i)[0]-f(x)[0]).y + (f(x+dx*j)[1]-f(x)[1]).y + (f(x+dx*k)[2]-f(x)[2]).y,	(f(x+dx*i)[0]-f(x)[0]).z + (f(x+dx*j)[1]-f(x)[1]).z + (f(x+dx*k)[2]-f(x)[2]).z    ) / dx
+#define CURL(f) curl(f(x), f(x+dx*i), f(x+dx*j), f(x+dx*k))
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+vec3 curl(vec3 gx, vec3 gxdxi, vec3 gxdxj, vec3 gxdxk){
+  vec3 dgdx = (gxdxi-gx) / dx;
+  vec3 dgdy = (gxdxj-gx) / dx;
+  vec3 dgdz = (gxdxk-gx) / dx;
+  return 
+    vec3(
+        dgdy.z - dgdz.y,
+        dgdz.x - dgdx.z,
+        dgdx.y - dgdy.x
+      );
+}
+vec3 g(vec3 x){
+  return vec3(
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
+}
+float div_g(vec3 x){
+  return DIVERGENCE(g);
+}
+mat3 mat_grad_g(vec3 x){
+  return (VECTOR_GRADIENT(g));
+}
+vec3 curl_g(vec3 x){
+  return CURL(g);
+}
+vec3 not_vec_laplace_g(vec3 x){
+  return GRADIENT(div_g);
+}
+vec3 vec_laplace_g1(vec3 x){
+  return MATRIX_DIVERGENCE(mat_grad_g);
+}
+vec3 vec_laplace_g2(vec3 x){
+  return (GRADIENT(div_g)) - (CURL(curl_g));
+}
+vec3 f(vec3 x){
+  return vec_laplace_g1(x);
+}
+    </script>
+    <script type="x-shader/x-vector" id="grad-div-demo" data-field-type="vector">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+#define GRADIENT(f) vec3( f(x+dx*i)-f(x), f(x+dx*j)-f(x), f(x+dx*k)-f(x)) / dx
+#define DIVERGENCE(f) ((f(x+dx*i)-f(x)).x + (f(x+dx*j)-f(x)).y + (f(x+dx*k)-f(x)).z) / dx
 const float dx = 0.001;
 const vec3 i = vec3(1,0,0);
 const vec3 j = vec3(0,1,0);
@@ -421,14 +480,13 @@ vec3 g(vec3 x){
 float div_g(vec3 x){
   return DIVERGENCE(g);
 }
-vec3 laplace_g(vec3 x){
+vec3 grad_div_g(vec3 x){
   return GRADIENT(div_g);
 }
 vec3 f(vec3 x){
-  return laplace_g(x);
+  return grad_div_g(x);
 }
     </script>
-
     <script type="x-shader/x-scalar" id="geometry-demo" data-field-type="scalar">
 // Write your own code, here. 
 // Code must be written in glsl.
