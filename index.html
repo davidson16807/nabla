@@ -191,6 +191,7 @@
 				<select id="demo">
 					<option value="scalar-field-demo">scalar field demo</option>
 					<option value="vector-field-demo">vector field demo</option>
+					<option value="matrix-field-demo">matrix field demo</option>
 					<option value="gradient-demo">gradient demo</option>
 					<option value="divergence-demo">divergence demo</option>
 					<option value="matrix-divergence-demo">matrix divergence demo</option>
@@ -386,6 +387,25 @@ vec3 f(vec3 x){
   );
 }
 	</script>
+    <script type="x-shader/x-scalar" id="matrix-field-demo" data-field-type="matrix">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+vec3 g(vec3 x){
+  return vec3(
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
+}
+mat3 f(vec3 x){
+  return mat3(1.);
+}
+    </script>
     <script type="x-shader/x-vector" id="gradient-demo" data-field-type="vector">
 // Write your own code, here. 
 // Code must be written in glsl.
@@ -756,7 +776,7 @@ float f(vec3 x){
 			mode: "x-shader/x-vertex",
 			lineNumbers: true,
 		});
-		matrixFieldEditor.setValue($('#matrix-divergence-demo').text());
+		matrixFieldEditor.setValue($('#matrix-field-demo').text());
 		// matrixFieldEditor.setSize(350,250);
 		// matrixFieldEditor.viewportMargin = Infinity;
 		matrixFieldEditor.setOption("theme", "monokai");
