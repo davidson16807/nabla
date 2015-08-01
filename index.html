@@ -62,6 +62,7 @@
 						<select id="field-type">
 							<option value="scalar">Scalar</option>
 							<option value="vector">Vector</option>
+							<option value="matrix">Matrix</option>
 						</select>
 					</td>
 				</tr>
@@ -166,12 +167,16 @@
 			<p>`f = phi`</p>
 		</div>
 		<div>
-			<div id="scalarFieldEditorContainer" style="opacity: 0.9">
-				<textarea id="scalarFieldEditor" cols="80" height="auto" width="100%", class="fieldEditorContainer"></textarea>
+			<div id="scalarFieldEditorContainer" style="opacity: 0.9" class="fieldEditorContainer">
+				<textarea id="scalarFieldEditor" cols="80" height="auto" width="100%"></textarea>
 			</div>
 
 			<div id="vectorFieldEditorContainer" style="opacity: 0.9" class="fieldEditorContainer">
-				<textarea id="vectorFieldEditor" cols="80" height="auto" width="100%",></textarea>
+				<textarea id="vectorFieldEditor" cols="80" height="auto" width="100%"></textarea>
+			</div>
+
+			<div id="matrixFieldEditorContainer" style="opacity: 0.9" class="fieldEditorContainer">
+				<textarea id="matrixFieldEditor" cols="80" height="auto" width="100%"></textarea>
 			</div>
 			<div class="controls">
 				<button id="compile">
@@ -188,6 +193,7 @@
 					<option value="vector-field-demo">vector field demo</option>
 					<option value="gradient-demo">gradient demo</option>
 					<option value="divergence-demo">divergence demo</option>
+					<option value="matrix-divergence-demo">matrix divergence demo</option>
 					<option value="curl-demo">curl demo</option>
 					<option value="scalar-laplacian-demo">scalar laplacian demo</option>
 					<option value="vector-laplacian-demo">vector laplacian demo</option>
@@ -201,6 +207,69 @@
 		</div>
 		</div>
 	</div>
+    <script type="x-shader/x-vertex" id="matrixVertexShader">
+    	varying vec4 vColor;
+		varying vec3 vPosition;
+		uniform int resolution;
+		uniform vec4 domain_center;
+		uniform float domain_width;
+		uniform vec2 range;
+		attribute float is_vector; // positive=true, negative=false
+		attribute vec4 color;
+
+		//USER_INPUT_GOES_HERE
+		
+		void main() {
+			vPosition = position * domain_width/2. + domain_center.xyz;
+			vColor = color;
+			mat3 matrix = f(vPosition);
+			vec3 vector = 
+				vColor.r > 0.5? matrix[0] : 
+				vColor.g > 0.5? matrix[1] :
+				vColor.b > 0.5? matrix[2] : matrix[2];
+        	float magnitude = sqrt(dot(vector,vector));
+        	float display_value = clamp(magnitude, range.x, range.y)/(range.y-range.x);
+        	vec3 display_vector = normalize(vector) * display_value;
+			gl_Position = 
+				projectionMatrix * 
+				modelViewMatrix * 
+				vec4( is_vector > 0.? 
+					position + (display_vector / float(resolution) / 8.) : 
+					position,      1.0 );
+		}
+    </script>
+    <script type="x-shader/x-fragment" id="matrixFragmentShader">
+        const float PI = 3.1415926;
+
+        varying vec3 vPosition;
+        varying vec4 vColor;
+		uniform int resolution;
+		uniform vec2 range;
+
+        //converts float from 0-1 to a heat map visualtion
+        //credit goes to Gaëtan Renaudeau: http://greweb.me/glsl.js/examples/heatmap/
+        vec3 heat (float v) {
+        	float value = 1.-v;
+        	return (0.5+0.5*smoothstep(0.0, 0.1, value))*vec3(
+        		smoothstep(0.5, 0.3, value),
+        		value < 0.3 ? smoothstep(0.0, 0.3, value) : smoothstep(1.0, 0.6, value),
+        		smoothstep(0.4, 0.6, value)
+        	);
+        }
+
+        //USER_INPUT_GOES_HERE
+
+        void main() {
+			mat3 matrix = f(vPosition);
+        	vec3 vector = 
+        		vColor.r > 0.5? matrix[0] : 
+        		vColor.g > 0.5? matrix[1] :
+        		vColor.b > 0.5? matrix[2] : matrix[2];
+        	float magnitude = sqrt(dot(vector,vector));
+        	float display_value = clamp(magnitude, range.x, range.y)/(range.y-range.x);
+            gl_FragColor = vColor;
+        }
+    </script>
     <script type="x-shader/x-vertex" id="vectorVertexShader">
 		varying vec3 vPosition;
 		uniform int resolution;
@@ -351,6 +420,27 @@ vec3 g(vec3 x){
 }
 float f(vec3 x){
   return DIVERGENCE(g);
+}
+    </script>
+    <script type="x-shader/x-scalar" id="matrix-divergence-demo" data-field-type="matrix">
+// Write your own code, here. 
+// Code must be written in glsl.
+// Hit "compile" to update the view.
+#define DIVERGENCE(f) ((f(x+dx*i)-f(x)).x + (f(x+dx*j)-f(x)).y + (f(x+dx*k)-f(x)).z) / dx
+#define VECTOR_GRADIENT(f) mat3( f(x+dx*i).x-f(x).x, f(x+dx*i).y-f(x).y, f(x+dx*i).z-f(x).z,    f(x+dx*j).x-f(x).x, f(x+dx*j).y-f(x).y, f(x+dx*j).z-f(x).z,     f(x+dx*k).x-f(x).x, f(x+dx*k).y-f(x).y, f(x+dx*k).z-f(x).z  ) / dx
+const float dx = 0.001;
+const vec3 i = vec3(1,0,0);
+const vec3 j = vec3(0,1,0);
+const vec3 k = vec3(0,0,1);
+vec3 g(vec3 x){
+  return vec3(
+    cos(x.x) * cos(x.y) * cos(x.z),
+    sin(x.x) * sin(x.y) * sin(x.z),
+    cos(x.x) * cos(x.y) * cos(x.z)
+  );
+}
+mat3 f(vec3 x){
+  return VECTOR_GRADIENT(g);
 }
     </script>
     <script type="x-shader/x-vector" id="curl-demo" data-field-type="vector">
@@ -599,13 +689,17 @@ float f(vec3 x){
 			scene.remove(field);
 			$('#scalarFieldEditorContainer').hide();
 			$('#vectorFieldEditorContainer').hide();
+			$('#matrixFieldEditorContainer').hide();
 			$('#field-type').val(value);
 			if (value == "scalar") {
 				field = scalarField;
 				$('#scalarFieldEditorContainer').show();
-			} else {
+			} else if (value == "vector"){
 				field = vectorField;
 				$('#vectorFieldEditorContainer').show();
+			} else if (value == "matrix"){
+				field = matrixField;
+				$('#matrixFieldEditorContainer').show();
 			}
 
 			scene.add(field);
@@ -616,7 +710,9 @@ float f(vec3 x){
 				vectorShader.compile(vectorFieldEditor.getValue());
 			} else if (field_type == "scalar") {
 				scalarShader.compile(scalarFieldEditor.getValue());
-			};
+			} else if (field_type == "matrix") {
+				matrixShader.compile(matrixFieldEditor.getValue());
+			}
 		}
 		THREE.ShaderMaterial.prototype.compile = function(user_input) {
 			this.vertexShader = this.vertex_template.replace("//USER_INPUT_GOES_HERE", user_input);
@@ -651,7 +747,22 @@ float f(vec3 x){
 		// scalarFieldEditor.viewportMargin = Infinity;
 		scalarFieldEditor.setOption("theme", 'monokai');
 
+		var matrixFieldEditor = CodeMirror.fromTextArea($('#matrixFieldEditor')[0], {
+			extraKeys: {
+				'Ctrl-S': function(){
+					matrixShader.compile(matrixFieldEditor.getValue());
+				}
+			},
+			mode: "x-shader/x-vertex",
+			lineNumbers: true,
+		});
+		matrixFieldEditor.setValue($('#matrix-divergence-demo').text());
+		// matrixFieldEditor.setSize(350,250);
+		// matrixFieldEditor.viewportMargin = Infinity;
+		matrixFieldEditor.setOption("theme", "monokai");
+
 		$('#vectorFieldEditorContainer').hide();
+		$('#matrixFieldEditorContainer').hide();
 		var scene, renderer, composer, clock;
 		var camera, cameraControl;
 	    var image = document.createElement( 'img' );
@@ -660,6 +771,7 @@ float f(vec3 x){
 
 		var scalarGeometry	= new THREE.Geometry();
 		var vectorGeometry	= new THREE.Geometry();
+		var matrixGeometry	= new THREE.Geometry();
 	    var scalarShader = new THREE.ShaderMaterial({
 	        vertexShader: $('#scalarVertexShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue()),
 	        fragmentShader: $('#scalarFragmentShader').text().replace("//USER_INPUT_GOES_HERE", scalarFieldEditor.getValue()),
@@ -691,24 +803,52 @@ float f(vec3 x){
 	    });
 	    vectorShader.vertex_template = $('#vectorVertexShader').text();
 	    vectorShader.fragment_template = $('#vectorFragmentShader').text();
+	    var matrixShader = new THREE.ShaderMaterial({
+	        vertexShader: $('#matrixVertexShader').text().replace("//USER_INPUT_GOES_HERE", matrixFieldEditor.getValue()),
+	        fragmentShader: $('#matrixFragmentShader').text().replace("//USER_INPUT_GOES_HERE", matrixFieldEditor.getValue()),
+	        attributes: {
+	        	is_vector: { type: 'f', value: [] },
+	        	color: {type: "c", value: []}
+	        },
+	        uniforms: {
+	        	resolution: { type: 'i', value: resolution },
+	        	center: { type: 'v4', value: new THREE.Vector4( 0,0,0,0 ) },
+	        	domain_width: { type: 'f', value: 8 },
+	        	domain_center: { type: 'v4', value: new THREE.Vector4(0,0,0,0) },
+	        	range: { type: 'v2', value: new THREE.Vector2(0,1) }
+	        }
+	    });
+	    matrixShader.vertex_template = $('#matrixVertexShader').text();
+	    matrixShader.fragment_template = $('#matrixFragmentShader').text();
 
 		var resolution = 25;
 		for (var i = 0; i <= resolution; i++) {
 			for (var j = 0; j <= resolution; j++) {
 				for (var k = 0; k <= resolution; k++) {
-					for(var l = 0; l<2; l++){ //l is used to represent vectors when mesh == THREE.Line
+					for(var is_vector = -1; is_vector<2; is_vector+=2){ //is_vector is used to represent vectors when mesh == THREE.Line
 						scalarGeometry.vertices.push(new THREE.Vector3((2*i/resolution-1),(2*j/resolution-1),(2*k/resolution-1)));
+						
 						vectorGeometry.vertices.push(new THREE.Vector3((2*i/resolution-1),(2*j/resolution-1),(2*k/resolution-1)));
-						vectorShader.attributes.is_vector.value.push(2*l-1); 
-						//.value[i*resolution*resolution + j*resolution + k*2 +l] = 
+						vectorShader.attributes.is_vector.value.push(is_vector); 
 					} 
+					for(var basis = 0; basis < 3; basis++){
+						for(var is_vector = -1; is_vector<2; is_vector+=2){ 
+							matrixGeometry.vertices.push(new THREE.Vector3((2*i/resolution-1),(2*j/resolution-1),(2*k/resolution-1)));
+							matrixShader.attributes.is_vector.value.push(is_vector); 
+							matrixShader.attributes.color.value.push(
+								new THREE.Color([0xff0000, 0x00ff00, 0x0000ff][basis])
+							); 
+						}
+					}
 				}
 			}
 		};	
 		vectorShader.attributes.is_vector.needsUpdate = true;
+		matrixShader.attributes.is_vector.needsUpdate = true;
 
 		var scalarField = new THREE.ParticleSystem(scalarGeometry, scalarShader);
 		var vectorField	= new THREE.Line( vectorGeometry, vectorShader, THREE.LinePieces);
+		var matrixField = new THREE.Line( matrixGeometry, matrixShader, THREE.LinePieces);
 		// vectorField.visible = false;
 		var field = scalarField;
 		var MegaYearsPerSecond = 20;
@@ -796,8 +936,10 @@ float f(vec3 x){
 			field_type($(this).val());
 			if(field_type == 'scalar'){
 				$('#demo').val('scalar-field-demo');
-			} else {
+			} else if(field_type == 'vector') {
 				$('#demo').val('vector-field-demo');
+			} else {
+				$('#demo').val('matrix-field-demo');
 			}
 		});
 		$('#domain-x').change(function(event) {
@@ -805,24 +947,32 @@ float f(vec3 x){
 			vectorShader.uniforms.domain_center.needsUpdate = true;
 			scalarShader.uniforms.domain_center.value.x = $('#domain-x').val();
 			scalarShader.uniforms.domain_center.needsUpdate = true;
+			matrixShader.uniforms.domain_center.value.x = $('#domain-x').val();
+			matrixShader.uniforms.domain_center.needsUpdate = true;
 		});
 		$('#domain-y').change(function(event) {
 			vectorShader.uniforms.domain_center.value.y = $('#domain-y').val();
 			vectorShader.uniforms.domain_center.needsUpdate = true;
 			scalarShader.uniforms.domain_center.value.y = $('#domain-y').val();
 			scalarShader.uniforms.domain_center.needsUpdate = true;
+			matrixShader.uniforms.domain_center.value.y = $('#domain-y').val();
+			matrixShader.uniforms.domain_center.needsUpdate = true;
 		});
 		$('#domain-z').change(function(event) {
 			vectorShader.uniforms.domain_center.value.z = $('#domain-z').val();
 			vectorShader.uniforms.domain_center.needsUpdate = true;
 			scalarShader.uniforms.domain_center.value.z = $('#domain-z').val();
 			scalarShader.uniforms.domain_center.needsUpdate = true;
+			matrixShader.uniforms.domain_center.value.z = $('#domain-z').val();
+			matrixShader.uniforms.domain_center.needsUpdate = true;
 		});
 		$('#domain-width').change(function(event) {
 			vectorShader.uniforms.domain_width.value = $('#domain-width').val();
 			vectorShader.uniforms.domain_width.needsUpdate = true;
 			scalarShader.uniforms.domain_width.value = $('#domain-width').val();
 			scalarShader.uniforms.domain_width.needsUpdate = true;
+			matrixShader.uniforms.domain_width.value = $('#domain-width').val();
+			matrixShader.uniforms.domain_width.needsUpdate = true;
 		});
 		$('#range-max').change(function(event) {
 			$('#range-min').attr('max', $('#range-max').val());
@@ -830,6 +980,8 @@ float f(vec3 x){
 			vectorShader.uniforms.range.needsUpdate = true;
 			scalarShader.uniforms.range.value.y = $('#range-max').val();
 			scalarShader.uniforms.range.needsUpdate = true;
+			matrixShader.uniforms.range.value.y = $('#range-max').val();
+			matrixShader.uniforms.range.needsUpdate = true;
 		});
 		$('#range-min').change(function(event) {
 			$('#range-max').attr('min', $('#range-min').val());
@@ -837,6 +989,8 @@ float f(vec3 x){
 			vectorShader.uniforms.range.needsUpdate = true;
 			scalarShader.uniforms.range.value.x = $('#range-min').val();
 			scalarShader.uniforms.range.needsUpdate = true;
+			matrixShader.uniforms.range.value.x = $('#range-min').val();
+			matrixShader.uniforms.range.needsUpdate = true;
 		});
 		$('#demo').on("keyup keydown change", function(event) {
 			var demo_selector = "#" + $(this).val();
@@ -847,9 +1001,11 @@ float f(vec3 x){
 			$(asciimath_selector).show();
 			var editor;
 			if (field_type_value == "vector") {
-				editor = vectorFieldEditor
+				editor = vectorFieldEditor;
 			} else if (field_type_value == "scalar") {
-				editor = scalarFieldEditor
+				editor = scalarFieldEditor;
+			} else if (field_type_value == "matrix"){
+				editor = matrixFieldEditor;
 			};
 			editor.setValue($(demo_selector).text());
 			compile();
@@ -873,6 +1029,8 @@ float f(vec3 x){
 					editor = vectorFieldEditor;
 				} else if (querystring['field-type'] === 'scalar') {
 					editor = scalarFieldEditor;
+				} else if (querystring['field-type'] === 'matrix') {
+					editor = matrixFieldEditor;
 				}
 				field_type(querystring['field-type']);
 				editor.setValue(decodeURIComponent(querystring['glsl']));
@@ -886,6 +1044,8 @@ float f(vec3 x){
 				editor = vectorFieldEditor;
 			} else if (field_type_value == "scalar") {
 				editor = scalarFieldEditor;
+			} else if (field_type_value == "matrix") {
+				editor = matrixFieldEditor;
 			};
 			var glsl = editor.getValue()
 				.replace(/[\t ]+/g, ' ')
