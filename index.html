@@ -103,10 +103,21 @@
 				     [sin(x_x)sin(x_y)sin(x_z)],
 				     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
 		</div>
+		<div class="hidden matrix-field-demo math">
+			<p>`vec(g) = I_3 = [[1, 0, 0],
+								[0, 1, 0], 
+								[0, 0, 1]]`</p>
+		</div>
 		<div class="hidden gradient-demo math">
 			<p>`vec(f) = nabla cos(x_x) cos(x_y) cos(x_z)`</p>
 		</div>
 		<div class="hidden divergence-demo math">
+			<p>`vec(g) = [[cos(x_x)cos(x_y)cos(x_z)],
+			     [sin(x_x)sin(x_y)sin(x_z)],
+			     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
+			<p>`f = nabla * vec(g)`</p>
+		</div>
+		<div class="hidden matrix-divergence-demo math">
 			<p>`vec(g) = [[cos(x_x)cos(x_y)cos(x_z)],
 			     [sin(x_x)sin(x_y)sin(x_z)],
 			     [cos(x_x)cos(x_y)cos(x_z)]]`</p>
@@ -194,7 +205,7 @@
 					<option value="matrix-field-demo">matrix field demo</option>
 					<option value="gradient-demo">gradient demo</option>
 					<option value="divergence-demo">divergence demo</option>
-					<option value="matrix-divergence-demo">matrix divergence demo</option>
+					<option value="matrix-divergence-demo">vector divergence demo</option>
 					<option value="curl-demo">curl demo</option>
 					<option value="scalar-laplacian-demo">scalar laplacian demo</option>
 					<option value="vector-laplacian-demo">vector laplacian demo</option>
